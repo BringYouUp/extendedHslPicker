@@ -1,4 +1,4 @@
-import { SELECT_HUE, SELECT_SATURATION, SELECT_LIGHTNESS, SELECT_ALPHA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, GET_RANDOM_COLOR } from './types.js'
+import { SELECT_HUE, SELECT_SATURATION, SELECT_LIGHTNESS, SELECT_ALPHA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, REFORMAT_FORMATS, GET_RANDOM_COLOR, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from './../../consts.js'
 
@@ -61,4 +61,11 @@ function getRandomColor () {
 	}
 }
 
-export { selectHue, selectSaturation, selectLightness, selectAlpha, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor }
+function getNewDefaultColorToCopy (actualValue) {
+	return {
+		type: GET_NEW_DEFAULT_FORMAT,
+		data: actualValue
+	}
+}
+
+export { selectHue, selectSaturation, selectLightness, selectAlpha, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy }

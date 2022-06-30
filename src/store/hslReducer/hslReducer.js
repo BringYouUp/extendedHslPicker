@@ -1,5 +1,6 @@
 import { INITIAL_STATE, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from './../../consts.js'
-import { SELECT_HUE, SELECT_SATURATION, SELECT_LIGHTNESS, SELECT_ALPHA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, GET_RANDOM_COLOR } from './types.js'
+
+import { SELECT_HUE, SELECT_SATURATION, SELECT_LIGHTNESS, SELECT_ALPHA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, GET_RANDOM_COLOR, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 import { getRandomGeneratedNumber } from './../../services/services.js'
 
@@ -49,14 +50,21 @@ export const hslReducer = (state = INITIAL_STATE, action) => {
 			return {
 				...state,
 				alpha: INITIAL_ALPHA,
-			} 
+			}
 
 		case GET_RANDOM_COLOR:
 			return {
+				...state,
 				hue: getRandomGeneratedNumber(361),
 				saturation: getRandomGeneratedNumber(100, 25),
 				lightness: getRandomGeneratedNumber(75, 25),
 				alpha: getRandomGeneratedNumber(100, 80) / 100,
+			}
+
+		case GET_NEW_DEFAULT_FORMAT:
+			return {
+				...state,
+				defaultFormatToCopy: action.data 
 			}
 
 		default:

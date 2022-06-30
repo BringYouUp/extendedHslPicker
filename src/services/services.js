@@ -23,7 +23,7 @@ const getFormattedRGBA = ([red, green, blue, alpha]) => `rgba(${red}, ${green}, 
 
 const getFormattedHEXA = ([red, green, blue, alpha]) =>  `#${red}${green}${blue}${alpha}`
 
-const getFormatted = (hue, saturation, lightness, alpha) => {
+const getFormatted = ({hue, saturation, lightness, alpha}) => {
 	let rgba = hslToRGBA(hue, saturation, lightness, alpha)
 	let hexa = rgbaToHEXA(rgba)
 
@@ -34,12 +34,10 @@ const getFormatted = (hue, saturation, lightness, alpha) => {
 	}
 }
 
-function toCopyColor (e) {
-	let textToPaste = e.target.innerText
-
-	navigator.clipboard.writeText(textToPaste)
-	.then(() => console.log('copied'))
-	.catch(err => console.log(err))
+function toCopyColor (textToCopy) {
+	navigator.clipboard.writeText(textToCopy)
+		.then(() => {})
+		.catch(err => {})
 }
 
 export { getRandomGeneratedNumber, getFormatted, toCopyColor }
