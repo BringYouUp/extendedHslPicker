@@ -1,6 +1,6 @@
 import { getFormatted } from './services/services.js'
 
-const INITIAL_HUE = 360
+const INITIAL_HUE = 180
 const INITIAL_SATURATION = 100
 const INITIAL_LIGHTNESS = 50
 const INITIAL_ALPHA = 1

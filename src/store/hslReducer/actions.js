@@ -1,31 +1,10 @@
-import { SELECT_HUE, SELECT_SATURATION, SELECT_LIGHTNESS, SELECT_ALPHA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, REFORMAT_FORMATS, GET_RANDOM_COLOR, GET_NEW_DEFAULT_FORMAT } from './types.js'
+import { SELECT_HSLA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, REFORMAT_FORMATS, GET_RANDOM_COLOR, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from './../../consts.js'
 
-function selectHue (actualValue) {
+function selectHSLA (actualValue) {
 	return {
-		type: SELECT_HUE,
-		data: actualValue
-	}
-}
-
-function selectSaturation (actualValue) {
-	return {
-		type: SELECT_SATURATION,
-		data: actualValue
-	}
-}
-
-function selectLightness (actualValue) {
-	return {
-		type: SELECT_LIGHTNESS,
-		data: actualValue
-	}
-}
-
-function selectAlpha (actualValue) {
-	return {
-		type: SELECT_ALPHA,
+		type: SELECT_HSLA,
 		data: actualValue
 	}
 }
@@ -68,4 +47,4 @@ function getNewDefaultColorToCopy (actualValue) {
 	}
 }
 
-export { selectHue, selectSaturation, selectLightness, selectAlpha, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy }
+export { selectHSLA, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy }

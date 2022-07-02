@@ -3,108 +3,128 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const TerserWebpackPlugin = require("terser-webpack-plugin")
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-module.exports = {
-	mode: isDevelopment ? 'development' : 'production',
-	entry: {
-		app: path.resolve(__dirname, './src/index.js'),
-	},
-	output: {
-		path: path.resolve(__dirname, './dist/'),
-		filename: isDevelopment ? '[name].js' : '[name].[contenthash].js',
-	},
-	target: isDevelopment ? "web" : "browserslist",
-	watchOptions: {
-		ignored: /node_modules/,
-	},
-	devServer: {
-		static: {
-			directory: path.join(__dirname, '/public/'),
-		},
-		historyApiFallback: true,
-		compress: true,
-		port: 8081,
-		open: true,
-		client: {
-	      overlay: true,
-	      // progress: true,
-	    },
-	},
-	module: {
-		rules: [{
-				test: /\.(js|jsx)$/i,
-				exclude: /node_modules/,
-				use: [
-					{
-						loader: 'babel-loader',
-						options: {
-							"presets": [
-								[
-									'@babel/preset-react'
-								],
-								[
-									"@babel/preset-env",
-									{
-										"useBuiltIns": "usage",
-										"corejs": "3"
-									}
-								],
-							],
-						}
-					},
-				]
-			},
-			{
-				test: /\.(sa|sc|c)ss$/i,
-				exclude: /node_modules/,
-				use: [
-					{
-						loader: isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader
-					},
-					{
-						loader: 'css-loader',
-						options: {
-							modules: {
-								localIdentName: '[local]__[sha1:hash:hex:4]'
-							}
-						}
-					},
-					{
-						loader: 'postcss-loader',
-					},
-					{
-						loader: 'sass-loader'
-					},
+const { PROJECT_ROOT, SOURCE_DIRECTORY, BUILD_DIRECTORY} = require('./webpack-consts.js')
 
-				],
+const getOptimization = () => {
+	const config = {
+		splitChunks: {
+			chunks: 'all'
+		}
+	}
+
+	if (!isDevelopment) {
+		config.minimizer = [
+			new TerserWebpackPlugin(),
+		]
+	}
+
+	return config
+}
+
+const getAppropriateFilename = ext => isDevelopment ? `[name].${ext}` : `[name].[hash].${ext}`
+
+module.exports = () => {
+	
+
+	return {
+		mode: isDevelopment ? 'development' : 'production',
+		entry: {
+			app: SOURCE_DIRECTORY,
+		},
+		output: {
+			path: BUILD_DIRECTORY,
+			filename: getAppropriateFilename('js'),
+		},
+		target: isDevelopment ? "web" : "browserslist",
+		watchOptions: {
+			ignored: /node_modules/,
+		},
+		devServer: {
+			// static: {
+			// 	directory: path.join(__dirname, '/public/'),
+			// },
+			static: true,
+			hot: true,
+			historyApiFallback: true,
+			port: 8081,
+			open: true,
+			client: {
+		      overlay: true,
+		      progress: true,
 			},
-			{
-				test: /\.(gif|png|jpe?g|svg)$/i,
-				exclude: /node_modules/,
-				type: 'asset/resource',
-				generator: {
-					filename: 'img/[name][ext]'
+		},
+		module: {
+			rules: [{
+					test: /\.(js|jsx)$/i,
+					exclude: /node_modules/,
+					use: [
+						{
+							loader: 'babel-loader',
+							options: {
+								"presets": [
+									[
+										'@babel/preset-react'
+									],
+									[
+										"@babel/preset-env",
+										{
+											"useBuiltIns": "usage",
+											"corejs": "3"
+										}
+									],
+								],
+							}
+						},
+					]
+				},
+				{
+					test: /\.(sa|sc|c)ss$/i,
+					exclude: /node_modules/,
+					use: [ isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+				},
+				{
+					test: /\.(gif|png|jpe?g|svg)$/i,
+					exclude: /node_modules/,
+					type: 'asset/resource',
+					generator: {
+						filename: 'img/[name][ext]'
+					}
 				}
-			}
+			],
+		},
+		plugins: [
+			new webpack.HotModuleReplacementPlugin(),
+			new CleanWebpackPlugin(),
+			new HtmlWebpackPlugin({
+				template: path.join(__dirname, 'index.html'),
+				title: 'hslPicker',
+				// favicon: './'
+				minify: {
+					collapseWhitespace: !isDevelopment ? true : false,
+				}
+				// favicon: "./src/img/title-icon.png",
+			}),
+			new MiniCssExtractPlugin({
+				filename: getAppropriateFilename('css'),
+			}),
 		],
-	},
-	plugins: [
-		new webpack.HotModuleReplacementPlugin(),
-		new CleanWebpackPlugin(),
-		new HtmlWebpackPlugin({
-			template: path.join(__dirname, 'index.html'),
-			// favicon: "./src/img/title-icon.png",
-		}),
-		new MiniCssExtractPlugin({
-			filename: isDevelopment ? '[name].css' : '[name].[contenthash].css',
-		}),
-	],
-	resolve: {
-		extensions: ['', '.js', '.jsx'],
-	},
-	stats: {
-		children: true,
-	},
+		resolve: {
+			extensions: ['', '.js', '.jsx'],
+			alias: {
+				'@': SOURCE_DIRECTORY,
+				'@components': path.resolve(__dirname, './src/components'),
+				'@styles': path.resolve(__dirname, './src/assets/styles'),
+				'@services': path.resolve(__dirname, './src/services'),
+				'@hooks': path.resolve(__dirname, './src/hooks'),
+			}
+		},
+		optimization: getOptimization(),
+		stats: {
+			children: true,
+		}
+	}
 }

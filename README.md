@@ -1,5 +1,12 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.2.0 ---
+
+	** COMMON
+		- added Favorite color list
+		- user can swiches between favorite colors
+		- user add and remove favorite colors
+
 --- VER. 0.1.1 ---
 
 	** COMMON

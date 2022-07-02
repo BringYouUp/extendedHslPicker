@@ -17,18 +17,19 @@ const hslToRGBA = (h, s, l, al) => {
 
 const rgbaToHEXA = ([red, green, blue, alpha]) => [...[red, green, blue].map(item => item > 16 ? item.toString(16) : '0' + item.toString(16)), Math.trunc((alpha * 100)).toString(16)]
 
-const getFormattedHSLA = (hue, saturation, lightness, alpha) => `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`
+const getFormattedHSLA = ({hue, saturation, lightness, alpha}) => `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`
 
 const getFormattedRGBA = ([red, green, blue, alpha]) => `rgba(${red}, ${green}, ${blue}, ${alpha})`
 
 const getFormattedHEXA = ([red, green, blue, alpha]) =>  `#${red}${green}${blue}${alpha}`
 
-const getFormatted = ({hue, saturation, lightness, alpha}) => {
+const getFormatted = (HSLA) => {
+	let {hue, saturation, lightness, alpha} = HSLA
 	let rgba = hslToRGBA(hue, saturation, lightness, alpha)
 	let hexa = rgbaToHEXA(rgba)
 
 	return {
-		hsla: getFormattedHSLA(hue, saturation, lightness, alpha),
+		hsla: getFormattedHSLA(HSLA),
 		rgba: getFormattedRGBA(rgba),
 		hexa: getFormattedHEXA(hexa),
 	}
@@ -40,4 +41,5 @@ function toCopyColor (textToCopy) {
 		.catch(err => {})
 }
 
-export { getRandomGeneratedNumber, getFormatted, toCopyColor }
+
+export { getRandomGeneratedNumber, getFormatted, toCopyColor, getFormattedHSLA }
