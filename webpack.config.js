@@ -48,13 +48,13 @@ module.exports = () => {
 			// 	directory: path.join(__dirname, '/public/'),
 			// },
 			static: true,
-			hot: true,
+			// hot: true,
 			historyApiFallback: true,
 			port: 8081,
 			open: true,
 			client: {
 		      overlay: true,
-		      progress: true,
+		      // progress: true,
 			},
 		},
 		module: {

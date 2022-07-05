@@ -1,5 +1,13 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.2.1 ---
+
+	** COMMON
+		- added LocalStorage support
+		- some attempts to make custom input[type=range] 
+	** MINOR
+		- attempt to add firebase store
+
 --- VER. 0.2.0 ---
 
 	** COMMON

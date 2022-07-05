@@ -10,6 +10,8 @@ import './assets/styles/root.sass'
 
 import App from './App';
 
+
+
 const store = createStore(rootReducer)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

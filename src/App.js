@@ -1,13 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 
 import { useDispatch, useSelector } from "react-redux"
 import { selectHSLA, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
 
 import { reformatFormats } from './store/copiedColorReducer/actions.js'
 
+import useLocalStorage from './hooks/useLocalStorage.js'
+
 import styles from './App.module.sass'
 
+// import * as firebase from 'firebase/app'
+
 import { getRandomGeneratedNumber, getFormatted, toCopyColor, getFormattedHSLA } from './services/services.js'
+
+import firebase from './firebase'
 
 const App = () => {
 	const store = useSelector(state => state)
@@ -18,10 +24,18 @@ const App = () => {
 	const inputLightness = useRef(null)
 	const inputAlpha = useRef(null)
 
-	const [ favorites, setFavorites ] = useState([])
+	const ref2 = useRef(null)
+	const ref3 = useRef(null)
+
+	const [ favorites, setFavorites ] = useLocalStorage('favoriteColorsList', [])
+
 	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
 
 	const [ history, updateHistory ] = useState([])
+
+	const db = firebase.firestore()
+
+	const [ theUserIsGuest, setTheUserIsGuest ] = useState(true)
 
 	const isUnique = () => {
 		let formattedNewColorHSLA = getFormattedHSLA(store.hslReducer)
@@ -31,6 +45,8 @@ const App = () => {
 		return isNewColorUnique
 	}
 
+	// console.log(db)
+
 	useEffect(() => {
 
 		dispatch(reformatFormats(store.hslReducer))
@@ -38,10 +54,10 @@ const App = () => {
 	}, [store.hslReducer])
 
 	useEffect(() => {
-
 		setIsUniqueColor(isUnique())
 
 	}, [store.hslReducer, favorites])
+
 
 	const changeHSLA = () => {
 		let
@@ -81,8 +97,23 @@ const App = () => {
 		setFavorites(prev => [...newFavorites])
 	}
 
-	// console.log(isUniqueColor)
+	const mouseMoveEvent = (e) => e.target == ref2.current && addBounceEffect(e)	
 
+	const addBounceEffectListener = (e) => {
+		ref2.current.addEventListener('mousemove', mouseMoveEvent)
+		addBounceEffect(e)
+	}
+	const removeBounceEffectListener = (e) => {
+		ref2.current.removeEventListener('mousemove', mouseMoveEvent)
+		e.target.classList.contains('sliderWrapper') && addBounceEffect(e)
+	}
+	const removeBounceEffect = () => ref3.current.style.removeProperty('top')
+
+	const addBounceEffect = (e) => {
+		let offset = e.offsetX || e.nativeEvent.offsetX
+		ref3.current.style.left = offset - 12 + 'px'
+		ref3.current.style.top = '-2.5rem'
+	}
 
 	return (
 		<div
@@ -95,6 +126,29 @@ const App = () => {
 				<h2 style={{'filter': `opacity(${store.hslReducer.defaultFormatToCopy === 'rgba' ? 1 : 0.5})`}} data-format-to-copy="rgba" onClick={e => toUpdateDefaultFormat(e)}>{store.copiedColorReducer.rgba}</h2>
 				<h2 style={{'filter': `opacity(${store.hslReducer.defaultFormatToCopy === 'hexa' ? 1 : 0.5})`}} data-format-to-copy="hexa" onClick={e => toUpdateDefaultFormat(e)}>{store.copiedColorReducer.hexa}</h2>
 			</div>
+
+			<div
+				onMouseLeave={(e) => {removeBounceEffectListener(e); removeBounceEffect()}}
+				className="sliderWrapper">
+				<div
+					ref={ref2}
+					onMouseDown={(e) => {addBounceEffectListener(e)}}
+					onMouseUp={(e) => {removeBounceEffectListener(e); removeBounceEffect()}}
+					className="sliderTrack">
+				</div>
+				<div ref={ref3} className="sliderPoint"></div>			
+			</div>
+			
+
+						
+				
+				
+
+
+
+
+
+
 			<div>
 				<input
 					ref={inputHue}
@@ -106,6 +160,7 @@ const App = () => {
 
 			<div>
 				<input
+					id="ref"
 					ref={inputSaturation}
 					onChange = {() => changeHSLA()} 
 					type="range"  min="0" max="100" step="1"
@@ -143,7 +198,7 @@ const App = () => {
 						return (
 							<div
 								key={item.id}
-								colorID={item.id}
+								colorid={item.id}
 								className="favoriteCell"
 								style={{backgroundColor: getFormattedHSLA(item)}}
 								onClick={() => dispatch(selectHSLA(item))}

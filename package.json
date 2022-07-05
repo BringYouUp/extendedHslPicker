@@ -1,6 +1,6 @@
 {
   "name": "hsl-picker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "another react application",
   "license": "MIT",
   "scripts": {
@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "app-root-path": "^3.0.0",
+    "firebase": "^9.8.4",
     "firebase-tools": "^11.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

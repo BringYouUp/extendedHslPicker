@@ -6,3 +6,4 @@ node_modules
 .firebase
 .firebaserc
 .test_cache
+firebase-config.js
