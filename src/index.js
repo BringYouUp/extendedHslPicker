@@ -6,13 +6,11 @@ import { Provider } from 'react-redux';
 
 import { rootReducer } from './store/rootReducer'
 
-import './assets/styles/root.sass'
+import '@styles/root.sass'
 
 import App from './App';
 
-
-
-const store = createStore(rootReducer)
+const store = createStore(rootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -26,5 +24,5 @@ root.render(
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-if (isDevelopment && module && module.hot)
-	module.hot.accept()
+// if (isDevelopment && module && module.hot)
+// 	module.hot.accept()

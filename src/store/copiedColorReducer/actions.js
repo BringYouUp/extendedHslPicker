@@ -1,11 +1,11 @@
 import { REFORMAT_FORMATS } from './types.js'
 
-import { getFormatted } from './../../services/services.js'
+import { getFormatted } from '@utils/utils.js'
 
-function reformatFormats (actualHSLA) {
+function reformatFormats (actualHSL) {
 	return {
 		type: REFORMAT_FORMATS,
-		data: getFormatted(actualHSLA)
+		data: getFormatted(actualHSL)
 	}
 }
 

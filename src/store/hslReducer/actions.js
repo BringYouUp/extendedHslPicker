@@ -1,36 +1,18 @@
-import { SELECT_HSLA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, REFORMAT_FORMATS, GET_RANDOM_COLOR, GET_NEW_DEFAULT_FORMAT } from './types.js'
+import { SELECT_HSL, RESET_VALUE_OF_HSL, REFORMAT_FORMATS, GET_RANDOM_COLOR, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from './../../consts.js'
 
-function selectHSLA (actualValue) {
+function selectHSL (actualValue) {
 	return {
-		type: SELECT_HSLA,
+		type: SELECT_HSL,
 		data: actualValue
 	}
 }
 
-function resetHue (INITIAL_HUE) {
+function resetValueOfHSL (resettingKey) {
 	return {
-		type: RESET_HUE,
-		data: INITIAL_HUE,
-	}
-}
-function resetSaturation (INITIAL_SATURATION) {
-	return {
-		type: RESET_SATURATION,
-		data: INITIAL_SATURATION,
-	}
-}
-function resetLightness (INITIAL_LIGHTNESS) {
-	return {
-		type: RESET_LIGHTNESS,
-		data: INITIAL_LIGHTNESS,
-	}
-}
-function resetAplha (INITIAL_ALPHA) {
-	return {
-		type: RESET_ALPHA,
-		data: INITIAL_ALPHA,
+		type: RESET_VALUE_OF_HSL,
+		data: resettingKey
 	}
 }
 
@@ -47,4 +29,4 @@ function getNewDefaultColorToCopy (actualValue) {
 	}
 }
 
-export { selectHSLA, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy }
+export { selectHSL, resetValueOfHSL, getRandomColor, getNewDefaultColorToCopy }

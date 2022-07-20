@@ -1,41 +1,22 @@
-import { INITIAL_STATE, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from './../../consts.js'
+import { INITIAL_STATE, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
 
-import { SELECT_HSLA, RESET_HUE, RESET_SATURATION, RESET_LIGHTNESS, RESET_ALPHA, GET_RANDOM_COLOR, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
+import { SELECT_HSL, RESET_VALUE_OF_HSL, GET_RANDOM_COLOR, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
-import { getRandomGeneratedNumber } from './../../services/services.js'
+import { getRandomGeneratedNumber } from '@utils/utils.js'
 
-export const hslReducer = (state = INITIAL_STATE, action) => {
+export const hsl = (state, action) => {
+
+	// console.log(action.type, state)
+
+	state = state ? state : INITIAL_STATE
 
 	switch (action.type) {
-
-		case RESET_HUE:
-			return {
-				...state,
-				hue: INITIAL_HUE,
-			} 
-		case RESET_SATURATION:
-			return {
-				...state,
-				saturation: INITIAL_SATURATION,
-			}  
-		case RESET_LIGHTNESS:
-			return {
-				...state,
-				lightness: INITIAL_LIGHTNESS,
-			}  
-		case RESET_ALPHA:
-			return {
-				...state,
-				alpha: INITIAL_ALPHA,
-			}
-
 		case GET_RANDOM_COLOR:
 			return {
 				...state,
 				hue: getRandomGeneratedNumber(361),
 				saturation: getRandomGeneratedNumber(100, 25),
 				lightness: getRandomGeneratedNumber(75, 25),
-				alpha: getRandomGeneratedNumber(100, 80) / 100,
 			}
 
 		case GET_NEW_DEFAULT_FORMAT:
@@ -44,14 +25,20 @@ export const hslReducer = (state = INITIAL_STATE, action) => {
 				defaultFormatToCopy: action.data 
 			}
 
-		case SELECT_HSLA:
-			let { hue, saturation, lightness, alpha } = action.data
+		case SELECT_HSL:
+			// let { hue, saturation, lightness } = action.data
 			return {
 				...state,
-				hue,
-				saturation,
-				lightness,
-				alpha,
+				// hue,
+				// saturation,
+				// lightness,
+				...action.data
+			}
+
+		case RESET_VALUE_OF_HSL:
+			return {
+				...state,
+				[action.data]: INITIAL_STATE[action.data]
 			}
 
 		default:

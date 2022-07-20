@@ -97,7 +97,7 @@ module.exports = () => {
 			],
 		},
 		plugins: [
-			new webpack.HotModuleReplacementPlugin(),
+			// new webpack.HotModuleReplacementPlugin(),
 			new CleanWebpackPlugin(),
 			new HtmlWebpackPlugin({
 				template: path.join(__dirname, 'index.html'),
@@ -117,8 +117,8 @@ module.exports = () => {
 			alias: {
 				'@': SOURCE_DIRECTORY,
 				'@components': path.resolve(__dirname, './src/components'),
-				'@styles': path.resolve(__dirname, './src/assets/styles'),
-				'@services': path.resolve(__dirname, './src/services'),
+				'@styles': path.resolve(__dirname, './src/styles'),
+				'@utils': path.resolve(__dirname, './src/utils'),
 				'@hooks': path.resolve(__dirname, './src/hooks'),
 			}
 		},

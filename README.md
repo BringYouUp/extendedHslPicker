@@ -1,5 +1,16 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.2.2 ---
+
+	** COMMON
+		- added custom slider for HUE, SATURATION AND LIGHTNESS
+		- automatic copy target color when choosing it
+	** STYLES
+		- changed style of custom sliders to the appropriate one
+	** MINOR
+		- work on changing the structure of the project is in full swing
+		- added mobile half-support
+
 --- VER. 0.2.1 ---
 
 	** COMMON
@@ -13,13 +24,13 @@ https://extended-hsl-picker.web.app/
 	** COMMON
 		- added Favorite color list
 		- user can swiches between favorite colors
-		- user add and remove favorite colors
+		- user can add and remove favorite colors
 
 --- VER. 0.1.1 ---
 
 	** COMMON
-		- added ability to choose target color format
-		- added adility to copy target color format to clipboard
+		- added feature to choose target color format
+		- added feature to copy target color format to clipboard
 
 --- VER. 0.1.0 ---
 

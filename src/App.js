@@ -1,207 +1,183 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-import { useDispatch, useSelector } from "react-redux"
-import { selectHSLA, resetHue, resetSaturation, resetLightness, resetAplha, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
+import { Slider, Board } from '@components/index.js'
+
+import { createStore, useDispatch, useSelector } from "react-redux"
+import { selectHSL, resetValueOfHSL, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
 
 import { reformatFormats } from './store/copiedColorReducer/actions.js'
 
-import useLocalStorage from './hooks/useLocalStorage.js'
+import useLocalStorage from '@hooks/useLocalStorage.js'
 
 import styles from './App.module.sass'
 
+import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
 // import * as firebase from 'firebase/app'
 
-import { getRandomGeneratedNumber, getFormatted, toCopyColor, getFormattedHSLA } from './services/services.js'
+import { getRandomGeneratedNumber, getFormatted, toCopyColor, getFormattedHSL } from '@utils/utils.js'
 
-import firebase from './firebase'
+// import firebase from './firebase'
 
 const App = () => {
-	const store = useSelector(state => state)
+	const hsl = useSelector(state => state.hsl)
+	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 	const dispatch = useDispatch()
-
-	const inputHue = useRef(null)
-	const inputSaturation = useRef(null)
-	const inputLightness = useRef(null)
-	const inputAlpha = useRef(null)
-
-	const ref2 = useRef(null)
-	const ref3 = useRef(null)
-
 	const [ favorites, setFavorites ] = useLocalStorage('favoriteColorsList', [])
 
 	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
 
-	const [ history, updateHistory ] = useState([])
+	// const db = firebase.firestore()
 
-	const db = firebase.firestore()
+	const [ refHue, setRefHue ] = useState(INITIAL_HUE) 
+	const [ refSaturation, setRefSaturation ] = useState(INITIAL_SATURATION) 
+	const [ refLightness, setRefLightness ] = useState(INITIAL_LIGHTNESS) 
 
-	const [ theUserIsGuest, setTheUserIsGuest ] = useState(true)
+	const setRefValue = ref => {
+
+	}
+
 
 	const isUnique = () => {
-		let formattedNewColorHSLA = getFormattedHSLA(store.hslReducer)
+		let formattedNewColorHSLA = getFormattedHSL(hsl)
 
-		let isNewColorUnique = favorites.every(item => getFormattedHSLA(item) !== formattedNewColorHSLA)
+		let isNewColorUnique = favorites.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
 
 		return isNewColorUnique
 	}
 
-	// console.log(db)
+	useEffect(() => { dispatch(reformatFormats(hsl)) }, [hsl])
 
-	useEffect(() => {
+	useEffect(() => { setIsUniqueColor(isUnique()) }, [hsl, favorites])
 
-		dispatch(reformatFormats(store.hslReducer))
-
-	}, [store.hslReducer])
-
-	useEffect(() => {
-		setIsUniqueColor(isUnique())
-
-	}, [store.hslReducer, favorites])
-
-
-	const changeHSLA = () => {
+	const changeHSL = () => {
 		let
-			hue = inputHue.current.value,
-			saturation = inputSaturation.current.value,
-			lightness = inputLightness.current.value,
-			alpha = inputAlpha.current.value
+			hue = refHue,
+			saturation = refSaturation,
+			lightness = refLightness
 
-		dispatch(selectHSLA({ hue, saturation, lightness, alpha }))
+		dispatch(selectHSL({ hue, saturation, lightness }))
 	}
-
-	const toResetHue = () => dispatch(resetHue())
-	const toResetSaturation = () => dispatch(resetSaturation())
-	const toResetLightness = () => dispatch(resetLightness())
-	const toResetAplha = () => dispatch(resetAplha())
 
 	const toGetRandomColor = () => dispatch(getRandomColor())
 	
 	const toUpdateDefaultFormat = e => {
-		e.stopPropagation()
 		dispatch(getNewDefaultColorToCopy(e.target.dataset.formatToCopy))
 	}
 
-	const toCopyColorToClipboard = () => toCopyColor(store.copiedColorReducer[store.hslReducer.defaultFormatToCopy])
+	const toCopyColorToClipboard = () => {
+		toCopyColor(copiedColorReducer[hsl.defaultFormatToCopy])
+	}
 
 	const toAddToFavorite = () => {
 		if (!isUnique()) return
 
-		let { hue, saturation, lightness, alpha } = store.hslReducer
+		let { hue, saturation, lightness } = hsl
 
-		setFavorites(prev => [ { hue, saturation, lightness, alpha, id: Date.now() }, ...prev])
+		setFavorites(prev => [ { hue, saturation, lightness, id: Date.now() }, ...prev])
 	}
 
 	const toRemoveFromFavorite = () => {
-		let newFavorites =favorites.filter(item => item.hue !== store.hslReducer.hue)
+		let newFavorites = favorites.filter(item => item.hue !== hsl.hue)
 
 		setFavorites(prev => [...newFavorites])
 	}
 
-	const mouseMoveEvent = (e) => e.target == ref2.current && addBounceEffect(e)	
+	useEffect(() => {
+		// console.log('change HSL')
+		changeHSL()
+	 }, [refHue, refSaturation, refLightness])
 
-	const addBounceEffectListener = (e) => {
-		ref2.current.addEventListener('mousemove', mouseMoveEvent)
-		addBounceEffect(e)
-	}
-	const removeBounceEffectListener = (e) => {
-		ref2.current.removeEventListener('mousemove', mouseMoveEvent)
-		e.target.classList.contains('sliderWrapper') && addBounceEffect(e)
-	}
-	const removeBounceEffect = () => ref3.current.style.removeProperty('top')
+	useEffect(() => { toCopyColorToClipboard() }, [hsl.defaultFormatToCopy])
 
-	const addBounceEffect = (e) => {
-		let offset = e.offsetX || e.nativeEvent.offsetX
-		ref3.current.style.left = offset - 12 + 'px'
-		ref3.current.style.top = '-2.5rem'
+	useEffect(() => {
+		// console.log('main', hsl)
+	}, [hsl])
+
+	const handlerDocumentKeypress = (e) => {
+		// console.log(e.code)
+		if (e.code === "Space")
+			toGetRandomColor()
+		if (e.code === "Enter") {
+			toCopyColorToClipboard()
+			// alert('copied')
+
+		}
 	}
+
+	// console.log(hsl)
+	const toResetValue = relatedValue => {
+		dispatch(resetValueOfHSL(relatedValue))
+	}
+
+	const oneTimeChanged = (fn, value) => { fn(prev => prev + value) }
+
+	useEffect(() => {
+		document.addEventListener('keyup', handlerDocumentKeypress)
+		return () => document.removeEventListener('keyup', handlerDocumentKeypress)
+	}, [])
 
 	return (
 		<div
-			className="rootWrapper"
-			style={{backgroundColor: store.copiedColorReducer.hsla}}
-			onClick={() => toCopyColorToClipboard()}>
-
-			<div>
-				<h2 style={{'filter': `opacity(${store.hslReducer.defaultFormatToCopy === 'hsla' ? 1 : 0.5})`}} data-format-to-copy="hsla" onClick={e => toUpdateDefaultFormat(e)}>{store.copiedColorReducer.hsla}</h2>
-				<h2 style={{'filter': `opacity(${store.hslReducer.defaultFormatToCopy === 'rgba' ? 1 : 0.5})`}} data-format-to-copy="rgba" onClick={e => toUpdateDefaultFormat(e)}>{store.copiedColorReducer.rgba}</h2>
-				<h2 style={{'filter': `opacity(${store.hslReducer.defaultFormatToCopy === 'hexa' ? 1 : 0.5})`}} data-format-to-copy="hexa" onClick={e => toUpdateDefaultFormat(e)}>{store.copiedColorReducer.hexa}</h2>
-			</div>
-
-			<div
-				onMouseLeave={(e) => {removeBounceEffectListener(e); removeBounceEffect()}}
-				className="sliderWrapper">
-				<div
-					ref={ref2}
-					onMouseDown={(e) => {addBounceEffectListener(e)}}
-					onMouseUp={(e) => {removeBounceEffectListener(e); removeBounceEffect()}}
-					className="sliderTrack">
-				</div>
-				<div ref={ref3} className="sliderPoint"></div>			
-			</div>
+			className="rootWrapper">
 			
 
-						
+			<Board
+				toUpdateDefaultFormat={toUpdateDefaultFormat}
+			/>
+
+			<Slider 
+				oneTimeChanged={oneTimeChanged}
+				relatedValue='hue'
+				setRef={setRefHue}
+				toResetValue={toResetValue}
+				min={0}
+				max={360}
+			/>
+
+			<Slider 
+				oneTimeChanged={oneTimeChanged}
+				relatedValue='saturation'
+				setRef={setRefSaturation}
+				toResetValue={toResetValue}
+				min={0}
+				max={100}
+			/>
+
+			<Slider 
+				oneTimeChanged={oneTimeChanged}
+				toResetValue={toResetValue}
+				relatedValue='lightness'
+				setRef={setRefLightness}
+				min={0}
+				max={100}
+			/>
+
+			<div>
 				
-				
-
-
-
-
-
-
-			<div>
-				<input
-					ref={inputHue}
-					onChange = {() => changeHSLA()}
-					type="range" min="0" max="360" step="1"
-					value={store.hslReducer.hue}/>
-				<label onDoubleClick = {() => toResetHue()} htmlFor="">hue</label>
-			</div>
-
-			<div>
-				<input
-					id="ref"
-					ref={inputSaturation}
-					onChange = {() => changeHSLA()} 
-					type="range"  min="0" max="100" step="1"
-					value={store.hslReducer.saturation} />
-				<label onDoubleClick = {() => toResetSaturation()} htmlFor="">saturation</label>
-			</div>
-
-			<div>
-				<input
-					ref={inputLightness}
-					onChange = {() => changeHSLA()}
-					type="range"  min="0" max="100" step="1"
-					value={store.hslReducer.lightness} />
-				<label onDoubleClick = {() => toResetLightness()} htmlFor="">lightness</label>
-			</div>
-
-			<div>
-				<input
-					ref={inputAlpha}
-					onChange = {() => changeHSLA()}
-					type="range"  min="0" max="1" step="0.01"
-					value="1" value={store.hslReducer.alpha} />
-				<label onDoubleClick = {() => toResetAplha()} htmlFor="">alpha</label>
-			</div>
-
-			<div>
-				<input type="button" onClick={() => toGetRandomColor()} value="Random" />
-				<input type="button" onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}} value={`${isUniqueColor ? 'ADD' : 'REMOVE'}`} />
 			</div>
 
 			<div className="favoriteCellList">
+				<div
+					className="favoriteCell"
+					onClick={() => toGetRandomColor()}>
+					R
+				</div>
+				<div
+					className="favoriteCell"
+					onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}}>
+					{`${isUniqueColor ? '+' : '-'}`}
+				</div>
+
 				{
 					favorites.map(item => {
 
 						return (
 							<div
 								key={item.id}
-								colorid={item.id}
+								// colorid={item.id}
 								className="favoriteCell"
-								style={{backgroundColor: getFormattedHSLA(item)}}
-								onClick={() => dispatch(selectHSLA(item))}
+								style={{backgroundColor: getFormattedHSL(item)}}
+								onClick={() => dispatch(selectHSL(item))}
 							> 
 							</div>
 						)
