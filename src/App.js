@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Slider, Board } from '@components/index.js'
 
 import { createStore, useDispatch, useSelector } from "react-redux"
-import { selectHSL, resetValueOfHSL, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
+import { selectHSL, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
 
 import { reformatFormats } from './store/copiedColorReducer/actions.js'
 
@@ -14,7 +14,7 @@ import styles from './App.module.sass'
 import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
 // import * as firebase from 'firebase/app'
 
-import { getRandomGeneratedNumber, getFormatted, toCopyColor, getFormattedHSL } from '@utils/utils.js'
+import { getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL } from '@utils/utils.js'
 
 // import firebase from './firebase'
 
@@ -31,11 +31,6 @@ const App = () => {
 	const [ refHue, setRefHue ] = useState(INITIAL_HUE) 
 	const [ refSaturation, setRefSaturation ] = useState(INITIAL_SATURATION) 
 	const [ refLightness, setRefLightness ] = useState(INITIAL_LIGHTNESS) 
-
-	const setRefValue = ref => {
-
-	}
-
 
 	const isUnique = () => {
 		let formattedNewColorHSLA = getFormattedHSL(hsl)
@@ -60,14 +55,6 @@ const App = () => {
 
 	const toGetRandomColor = () => dispatch(getRandomColor())
 	
-	const toUpdateDefaultFormat = e => {
-		dispatch(getNewDefaultColorToCopy(e.target.dataset.formatToCopy))
-	}
-
-	const toCopyColorToClipboard = () => {
-		toCopyColor(copiedColorReducer[hsl.defaultFormatToCopy])
-	}
-
 	const toAddToFavorite = () => {
 		if (!isUnique()) return
 
@@ -83,33 +70,29 @@ const App = () => {
 	}
 
 	useEffect(() => {
-		// console.log('change HSL')
 		changeHSL()
 	 }, [refHue, refSaturation, refLightness])
 
-	useEffect(() => { toCopyColorToClipboard() }, [hsl.defaultFormatToCopy])
 
 	useEffect(() => {
-		// console.log('main', hsl)
+		let  {hue, saturation, lightness} = hsl
+
+		setRefHue (hue)
+		setRefSaturation (saturation)
+		setRefLightness (lightness)
+
 	}, [hsl])
 
 	const handlerDocumentKeypress = (e) => {
-		// console.log(e.code)
 		if (e.code === "Space")
 			toGetRandomColor()
 		if (e.code === "Enter") {
-			toCopyColorToClipboard()
-			// alert('copied')
-
+			console.log(copiedColorReducer)
+			toCopyColorInClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
 		}
 	}
 
-	// console.log(hsl)
-	const toResetValue = relatedValue => {
-		dispatch(resetValueOfHSL(relatedValue))
-	}
-
-	const oneTimeChanged = (fn, value) => { fn(prev => prev + value) }
+	const oneTimeChanged = (fn, value) => { fn (prev => prev + value) }
 
 	useEffect(() => {
 		document.addEventListener('keyup', handlerDocumentKeypress)
@@ -119,17 +102,13 @@ const App = () => {
 	return (
 		<div
 			className="rootWrapper">
-			
 
-			<Board
-				toUpdateDefaultFormat={toUpdateDefaultFormat}
-			/>
+			<Board />
 
 			<Slider 
 				oneTimeChanged={oneTimeChanged}
 				relatedValue='hue'
 				setRef={setRefHue}
-				toResetValue={toResetValue}
 				min={0}
 				max={360}
 			/>
@@ -138,23 +117,17 @@ const App = () => {
 				oneTimeChanged={oneTimeChanged}
 				relatedValue='saturation'
 				setRef={setRefSaturation}
-				toResetValue={toResetValue}
 				min={0}
 				max={100}
 			/>
 
 			<Slider 
 				oneTimeChanged={oneTimeChanged}
-				toResetValue={toResetValue}
 				relatedValue='lightness'
 				setRef={setRefLightness}
 				min={0}
 				max={100}
 			/>
-
-			<div>
-				
-			</div>
 
 			<div className="favoriteCellList">
 				<div
@@ -170,18 +143,15 @@ const App = () => {
 
 				{
 					favorites.map(item => {
-
 						return (
 							<div
 								key={item.id}
-								// colorid={item.id}
 								className="favoriteCell"
 								style={{backgroundColor: getFormattedHSL(item)}}
 								onClick={() => dispatch(selectHSL(item))}
 							> 
 							</div>
 						)
-
 					})
 				}
 			</div>

@@ -5,14 +5,14 @@ import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } fro
 function selectHSL (actualValue) {
 	return {
 		type: SELECT_HSL,
-		data: actualValue
+		payload: actualValue
 	}
 }
 
 function resetValueOfHSL (resettingKey) {
 	return {
 		type: RESET_VALUE_OF_HSL,
-		data: resettingKey
+		payload: resettingKey
 	}
 }
 
@@ -25,7 +25,7 @@ function getRandomColor () {
 function getNewDefaultColorToCopy (actualValue) {
 	return {
 		type: GET_NEW_DEFAULT_FORMAT,
-		data: actualValue
+		payload: actualValue
 	}
 }
 

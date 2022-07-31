@@ -1,5 +1,21 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.2.5 ---
+
+	** COMMON
+		- copy target color format more clearly
+		- almost completly android support
+	** FIXED
+		- return to initial value after use 'random color' and 'change position of any HSL Slider'
+		- bug when user use 'accurate adjustment', now user won't see the value less than 0 and greater then allowed MAX
+
+--- VER. 0.2.3 ---
+
+	** COMMON
+		- added adjust color settings by one-time pressing left and right of specific slider
+	** FIXED
+		- now color copy even if targetColorFormat didn't change
+
 --- VER. 0.2.2 ---
 
 	** COMMON

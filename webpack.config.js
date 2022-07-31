@@ -29,7 +29,6 @@ const getAppropriateFilename = ext => isDevelopment ? `[name].${ext}` : `[name].
 
 module.exports = () => {
 	
-
 	return {
 		mode: isDevelopment ? 'development' : 'production',
 		entry: {
@@ -44,19 +43,19 @@ module.exports = () => {
 			ignored: /node_modules/,
 		},
 		devServer: {
-			// static: {
-			// 	directory: path.join(__dirname, '/public/'),
-			// },
+			static: {
+				directory: path.join(__dirname, '/public/'),
+			},
 			static: true,
-			// hot: true,
 			historyApiFallback: true,
 			port: 8081,
 			open: true,
 			client: {
 		      overlay: true,
-		      // progress: true,
+		      progress: true,
 			},
 		},
+		devtool: 'source-map',
 		module: {
 			rules: [{
 					test: /\.(js|jsx)$/i,
@@ -102,7 +101,6 @@ module.exports = () => {
 			new HtmlWebpackPlugin({
 				template: path.join(__dirname, 'index.html'),
 				title: 'hslPicker',
-				// favicon: './'
 				minify: {
 					collapseWhitespace: !isDevelopment ? true : false,
 				}
@@ -120,6 +118,7 @@ module.exports = () => {
 				'@styles': path.resolve(__dirname, './src/styles'),
 				'@utils': path.resolve(__dirname, './src/utils'),
 				'@hooks': path.resolve(__dirname, './src/hooks'),
+				'@store': path.resolve(__dirname, './src/store'),
 			}
 		},
 		optimization: getOptimization(),

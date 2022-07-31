@@ -1,95 +1,120 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { useDispatch, useSelector } from "react-redux"
+import { addListeners, removeListeners, addStyleProperties, removeStyleProperties } from '@utils/utils.js'
 
-import { getFormatted } from '@utils/utils.js'
+import { createStore, useDispatch, useSelector } from "react-redux"
 
+import { resetValueOfHSL } from '@store/hslReducer/actions.js'
 
-function useShallowEqualSelector(selector) {
-   return useSelector(selector, shallowEqual);
-}
-
-const Slider = ({oneTimeChanged, relatedValue, setRef, toResetValue, min, max }) => {
-	
+const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
+	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
-
+	
 	const sliderWrapper = useRef(null)
 	const sliderTrack = useRef(null)
 	const sliderPoint = useRef(null)
 
 	const [ offset, setOffset ] = useState(0)
 
-	const mouseMoveEvent = (e) => e.target == sliderTrack.current && addBounceEffect(e)	
+	let sliderWrapperInitListeners = {
+			mouseleave: removeBounceEffectListener,
+			mousedown: addBounceEffectListener,
+			mouseup: removeBounceEffectListener,
+			touchstart: addBounceEffectListener,
+			touchend: removeBounceEffectListener,
+		}
 
-	const removeBounceEffect = () => {
-		sliderPoint.current.style.removeProperty('top')
-		sliderPoint.current.style.removeProperty('transform')
+	function removeBounceEffect() {
+		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
 	}
 
-	const zzz = e => {
-		console.log(e)
-	}
+	function addBounceEffectListener (e) {
+		addListeners (sliderWrapper.current, {
+			mousemove: addBounceEffect,
+			touchmove: addBounceEffect
+		})
 
-	const addBounceEffectListener = e => {
-		sliderTrack.current.addEventListener('mousemove', mouseMoveEvent)
-		sliderTrack.current.addEventListener('touchmove', mouseMoveEvent)
-		sliderTrack.current.addEventListener('click', oneTimeChanged_)
 		addBounceEffect(e)
 	}
 
-	const removeBounceEffectListener = e => {
-		sliderTrack.current.removeEventListener('mousemove', mouseMoveEvent)
-		sliderTrack.current.removeEventListener('touchmove', mouseMoveEvent)
-		sliderTrack.current.removeEventListener('click', oneTimeChanged_)
+	function removeBounceEffectListener (e) {
+		removeListeners (sliderWrapper.current, {
+			mousemove: addBounceEffect,
+			touchmove: addBounceEffect
+		})
+
 		removeBounceEffect()
 	}
 
-	const addBounceEffect = e => {
-		let eOffset = e.offsetX + 1
-		let sliderTrackWidth = sliderTrack.current.offsetWidth
+	function handleClickPosition () {
+		return {
+			startSliderTrack: sliderTrack.current.offsetLeft,
+			sliderTrackWidth: sliderTrack.current.offsetWidth,
+		}
+	}
 
-		if (eOffset < 0 || eOffset > sliderTrackWidth) return
+	function addBounceEffect (e) {
+		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
 
-		let progress = Math.trunc(parseInt(eOffset) * 100 / sliderTrackWidth)
+		let clickOffset = 0
+
+		addStyleProperties(sliderPoint.current, {
+			top: '-2rem',
+			transform: 'scale(1.5)'
+		})
+
+		if (e.type === 'touchmove' || e.type === 'touchstart')
+			clickOffset = e.touches[0].pageX - startSliderTrack
+
+		if (e.type === 'mousemove' || e.type === 'mousedown')
+			clickOffset = e.pageX - startSliderTrack
+
+		if (clickOffset < 0 || clickOffset > sliderTrackWidth) return
+
+		let progress = Math.trunc(parseInt(clickOffset) * 100 / sliderTrackWidth)
 		let newValue = Math.trunc(progress / 100 * max )
 
-		sliderPoint.current.style.top = '-2rem'
-		sliderPoint.current.style.transform = 'scale(1.5)'
 		setRef(newValue)
 	}
 	
-	// console.log('render', hsl)
+	function oneTimeChanged_ (e) {
+		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
 
-	const oneTimeChanged_ = e => {
+		let clickOffset = e.pageX
 
+		let isClickOnTheLeft = clickOffset < sliderTrack.current.offsetLeft
 
-		let eOffset = e.offsetX + 1
-		let sliderTrackWidth = sliderTrack.current.offsetWidth
-		// console.log('minor',hsl)
-		if (hsl[relatedValue] < min || hsl[relatedValue] > max) return
+		if (hsl[relatedValue] === min && isClickOnTheLeft) return
+		if (hsl[relatedValue] === max && !isClickOnTheLeft) return
 
-		// if (eOffset < 0)	oneTimeChanged(setRef, -1)
-		// // debugger
-		// if (eOffset > sliderTrackWidth) oneTimeChanged(setRef, +1)
+		if (isClickOnTheLeft)
+			oneTimeChanged(setRef, -1)
+		else
+			oneTimeChanged(setRef, 1)
 	}
 
-	const toCheckForResetValue = e => {
-		let eOffset = e.offsetX + 1
-		let sliderTrackWidth = sliderTrack.current.offsetWidth
+	function toCheckForResetValue (e) {
+		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
 
-		if (eOffset > 0 && eOffset < sliderTrackWidth) toResetValue(relatedValue)
+
+		let clickOffset = e.pageX
+		let isClickWithinSlider = clickOffset > startSliderTrack && clickOffset < sliderTrackWidth + startSliderTrack
+
+		console.log(isClickWithinSlider)
+		if (isClickWithinSlider)
+			dispatch(resetValueOfHSL(relatedValue))
 	}
 
-	const generateBackgroundColorForSliderTrack = relatedValue => {
+	function generateBackgroundColorForSliderTrack (relatedValue) {
 		if (relatedValue === 'hue') return `linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))`
 		
 		let appropriateValue = `hsl(${hsl.hue}, 100%, 50%)`
 
-		if (relatedValue == 'saturation') return `linear-gradient(to right, black, ${appropriateValue})`
+		if (relatedValue == 'saturation') return `linear-gradient(to right, grey, ${appropriateValue})`
 		if (relatedValue === 'lightness') return `linear-gradient(to right, black, ${appropriateValue}, white)`
 	} 
 
-	const generateBackgroundColorForSliderPoint = relatedValue => {
+	function generateBackgroundColorForSliderPoint (relatedValue) {
 		let currentHue = hsl.hue
 
 		if (relatedValue === 'hue') return `hsl(${currentHue}, 100%, 50%)`
@@ -97,63 +122,46 @@ const Slider = ({oneTimeChanged, relatedValue, setRef, toResetValue, min, max })
 		if (relatedValue === 'lightness') return `hsl(${currentHue}, 100%, ${hsl[relatedValue]}%)`
 	}
 
-	// console.log('перерендер', relatedValue, hsl, offset)
-
 	useEffect(() => {
-		// console.log('setOffset')
-		// debugger
 		setOffset(sliderTrack.current.offsetWidth * (hsl[relatedValue] / max) - 8)
 	}, [ hsl ])
 
 	useEffect(() => {
-		sliderWrapper.current.addEventListener('mouseleave', removeBounceEffectListener)
-
-		sliderTrack.current.addEventListener('mousedown', addBounceEffectListener)
-		sliderTrack.current.addEventListener('mouseup', removeBounceEffectListener)
-
-		sliderTrack.current.addEventListener('touchstart', addBounceEffectListener)
-		sliderTrack.current.addEventListener('touchend', removeBounceEffectListener)
-
-		sliderTrack.current.addEventListener('dblclick', toCheckForResetValue)
-		sliderPoint.current.addEventListener('dblclick', toCheckForResetValue)
+		addListeners(sliderWrapper.current, sliderWrapperInitListeners)
+		addListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
+		addListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
 
 		return () => {
-			sliderWrapper.current.removeEventListener('mouseleave', removeBounceEffectListener)
-
-			sliderTrack.current.removeEventListener('mousedown', addBounceEffectListener)
-			sliderTrack.current.removeEventListener('mouseup', removeBounceEffectListener)
-
-			sliderTrack.current.removeEventListener('touchstart', addBounceEffectListener)
-			sliderTrack.current.removeEventListener('touchend', removeBounceEffectListener)
-
-			sliderTrack.current.removeEventListener('dblclick', toCheckForResetValue)
-			sliderPoint.current.removeEventListener('dblclick', toCheckForResetValue)
+			removeListeners(sliderWrapper.current, sliderWrapperInitListeners)
+			removeListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
+			removeListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
 		};
 	}, [])
 			
 	return (
-		<div ref={sliderWrapper} className="sliderWrapper">
+		<div
+			ref={sliderWrapper}
+			className="sliderWrapper"
+			onClick={(e) => oneTimeChanged_(e)}
+		>
 			<div
 				className="sliderWrapperInner"
 				style={{background: generateBackgroundColorForSliderTrack(relatedValue)}}>
-				<div 
-					ref={sliderPoint}
-					style={
-						{
-							backgroundColor: generateBackgroundColorForSliderPoint(relatedValue),
-							left: offset + 'px'
-						}}
-					className="sliderPoint" />	
-				<div ref={sliderTrack} className="sliderTrack" />
+				
+				<div ref={sliderTrack} className="sliderTrack" >
+					<div 
+						ref={sliderPoint}
+						style={
+							{
+								backgroundColor: generateBackgroundColorForSliderPoint(relatedValue),
+								left: offset + 'px'
+							}}
+						className="sliderPoint" />	
+				</div>
+
 			</div>
 		</div>
 	)
 }
 
-
 export default Slider
-
-// const areEqual = (prevProps, nextProps) => prevProps.value === nextProps.value
-
-
-// export default React.memo(Slider,areEqual)

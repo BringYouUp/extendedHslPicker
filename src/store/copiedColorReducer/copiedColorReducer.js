@@ -1,4 +1,4 @@
-import { REFORMAT_FORMATS } from './types.js'
+import { REFORMAT_FORMATS, UPDATE_CLIPBOARD} from './types.js'
 
 import { COPIED_COLOR_HISTORY } from '@/consts.js'
 
@@ -10,9 +10,14 @@ export const copiedColorReducer = (state = COPIED_COLOR_HISTORY, action) => {
 		case REFORMAT_FORMATS:
 			return {
 				...state,
-				hsl: action.data.hsl,
-				rgb: action.data.rgb,
-				hex: action.data.hex,
+				hsl: action.payload.hsl,
+				rgb: action.payload.rgb,
+				hex: action.payload.hex,
+			}
+		case UPDATE_CLIPBOARD:
+			return {
+				...state,
+				clipboard: action.payload
 			}
 
 		default:
