@@ -11,38 +11,34 @@ import useLocalStorage from '@hooks/useLocalStorage.js'
 
 import styles from './App.module.sass'
 
-import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
+import { LS_MAIN_KEY, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
 // import * as firebase from 'firebase/app'
 
-import { getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL } from '@utils/utils.js'
+import { parseAddressBar, getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL } from '@utils/utils.js'
 
 // import firebase from './firebase'
 
 const App = () => {
 	const hsl = useSelector(state => state.hsl)
-	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 	const dispatch = useDispatch()
-	const [ favorites, setFavorites ] = useLocalStorage('favoriteColorsList', [])
+	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
+	const [ favoritesLS, setFavoritesLS ] = useLocalStorage('favoriteColorsList', [])
+	const [ stateLS, setStateLS ] = useLocalStorage(LS_MAIN_KEY, hsl)
 	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
-
-	// const db = firebase.firestore()
 
 	const [ refHue, setRefHue ] = useState(INITIAL_HUE) 
 	const [ refSaturation, setRefSaturation ] = useState(INITIAL_SATURATION) 
 	const [ refLightness, setRefLightness ] = useState(INITIAL_LIGHTNESS) 
 
+	// const db = firebase.firestore()
+
 	const isUnique = () => {
 		let formattedNewColorHSLA = getFormattedHSL(hsl)
-
-		let isNewColorUnique = favorites.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
+		let isNewColorUnique = favoritesLS.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
 
 		return isNewColorUnique
 	}
-
-	useEffect(() => { dispatch(reformatFormats(hsl)) }, [hsl])
-
-	useEffect(() => { setIsUniqueColor(isUnique()) }, [hsl, favorites])
 
 	const changeHSL = () => {
 		let
@@ -53,26 +49,48 @@ const App = () => {
 		dispatch(selectHSL({ hue, saturation, lightness }))
 	}
 
-	const toGetRandomColor = () => dispatch(getRandomColor())
 	
 	const toAddToFavorite = () => {
 		if (!isUnique()) return
 
 		let { hue, saturation, lightness } = hsl
 
-		setFavorites(prev => [ { hue, saturation, lightness, id: Date.now() }, ...prev])
+		setFavoritesLS(prev => [ { hue, saturation, lightness, id: Date.now() }, ...prev])
 	}
 
 	const toRemoveFromFavorite = () => {
-		let newFavorites = favorites.filter(item => item.hue !== hsl.hue)
+		let newFavorites = favoritesLS.filter(item => item.hue !== hsl.hue)
 
-		setFavorites(prev => [...newFavorites])
+		setFavoritesLS(prev => [...newFavorites])
 	}
 
-	useEffect(() => {
-		changeHSL()
-	 }, [refHue, refSaturation, refLightness])
 
+	const handlerDocumentKeypress = (e) => {
+		if (e.code === "Space")
+			toGetRandomColor()
+		if (e.code === "Enter") {
+			e.preventDefault()
+			console.log(copiedColorReducer)
+			toCopyColorInClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
+		}
+	}
+
+	const oneTimeChanged = (fn, value) => { fn (prev => prev + value) }
+
+	const toGetRandomColor = () => dispatch(getRandomColor())
+
+	function getGetQuery(actualState) {
+		return Object.keys(actualState).map(item => `${item}=${actualState[item]}&&`).join('')
+	}
+
+	function updateHistory () {
+		let getQuery = getGetQuery(hsl)
+
+		let baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+		let newUrl = `${baseUrl}?${getQuery}`
+		
+		history.pushState(null, null, newUrl);
+	} 
 
 	useEffect(() => {
 		let  {hue, saturation, lightness} = hsl
@@ -81,19 +99,15 @@ const App = () => {
 		setRefSaturation (saturation)
 		setRefLightness (lightness)
 
+		updateHistory()
+		setStateLS(prev => hsl)
+		dispatch(reformatFormats(hsl))
 	}, [hsl])
 
-	const handlerDocumentKeypress = (e) => {
-		if (e.code === "Space")
-			toGetRandomColor()
-		if (e.code === "Enter") {
-			console.log(copiedColorReducer)
-			toCopyColorInClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
-		}
-	}
+	useEffect(() => { setIsUniqueColor(isUnique()) }, [hsl, favoritesLS])
 
-	const oneTimeChanged = (fn, value) => { fn (prev => prev + value) }
-
+	useEffect(() => { changeHSL() }, [refHue, refSaturation, refLightness])
+	
 	useEffect(() => {
 		document.addEventListener('keyup', handlerDocumentKeypress)
 		return () => document.removeEventListener('keyup', handlerDocumentKeypress)
@@ -132,6 +146,26 @@ const App = () => {
 			<div className="favoriteCellList">
 				<div
 					className="favoriteCell"
+					onClick={() => {}}>
+					Q
+				</div>
+				<div
+					className="favoriteCell"
+					onClick={() => {}}>
+					H
+				</div>
+				<div
+					className="favoriteCell"
+					onClick={() => {}}>
+					C
+				</div>
+				<div
+					className="favoriteCell"
+					onClick={() => {}}>
+					U
+				</div>
+				<div
+					className="favoriteCell"
 					onClick={() => toGetRandomColor()}>
 					R
 				</div>
@@ -142,7 +176,7 @@ const App = () => {
 				</div>
 
 				{
-					favorites.map(item => {
+					favoritesLS.map(item => {
 						return (
 							<div
 								key={item.id}

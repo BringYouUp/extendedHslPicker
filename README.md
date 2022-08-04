@@ -1,10 +1,21 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.3.0 ---
+
+	** COMMON
+		- now address bar displays actual color
+		- actual color stores in LocalStorage
+		- restrict horizontal scroll when working with the slider on android devices
+		- now you can press and hold for 'accurate adjustment' of specific value
+	** FIXED
+		- after page reloading clipboard doesn't change anymore
+		- now value does not change user interacts with slider
+
 --- VER. 0.2.5 ---
 
 	** COMMON
 		- copy target color format more clearly
-		- almost completly android support
+		- almost completely android support
 	** FIXED
 		- return to initial value after use 'random color' and 'change position of any HSL Slider'
 		- bug when user use 'accurate adjustment', now user won't see the value less than 0 and greater then allowed MAX

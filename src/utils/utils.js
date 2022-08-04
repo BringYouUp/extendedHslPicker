@@ -1,4 +1,4 @@
-import { MAIN_FORMATS } from '@/consts.js'
+import { LS_MAIN_KEY, MAIN_FORMATS } from '@/consts.js'
 
 const getRandomGeneratedNumber = (max, min = 0) => Math.floor(Math.random() * (max - min) + min)
 
@@ -37,6 +37,8 @@ function getFormatted (HSL) {
 }
 
 function toCopyColorInClipboard (textToCopy) {
+	// debugger
+	console.log('tocopycolor')
 	navigator.clipboard
 		.writeText(textToCopy)
 		.then(() => {})
@@ -63,10 +65,58 @@ function removeStyleProperties (element, properties) {
 		element.style.removeProperty(property)
 }
 
-function isTextTheSame (clipboardText, actualFormattedValues) {
-	let isOneTheSame = MAIN_FORMATS.some(item => clipboardText === actualFormattedValues[item])
+function isTextTheSame (clipboardText, actualFormattedValues, defaultFormatToCopy) {
+	// let isOneTheSame = MAIN_FORMATS.some(item => clipboardText === actualFormattedValues[item])
 
-	return isOneTheSame ? true : false
+	return clipboardText === actualFormattedValues[defaultFormatToCopy]
 }
 
-export { isTextTheSame, getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL, addListeners, removeListeners, addStyleProperties, removeStyleProperties }
+function isAddressBarIncludeQuery () {
+	return window.location.search
+}
+
+function parseAddressBar() {
+	let  paramsQueryObject = {}
+	let [ questionMark, ...queryString ] = window.location.search.split('')
+
+	let paramsQueryArray = queryString
+		.join('')
+		.split(/[=|&&]/)
+		.filter(item => item.length);
+
+	['hue', 'saturation', 'lightness'].forEach(item => {
+		if (paramsQueryArray.includes(item)) {
+			let index = paramsQueryArray.indexOf(item)
+			let isNewValueIsNumber = Number.isInteger(+paramsQueryArray[index + 1])
+			let newAppropriateValue = isNewValueIsNumber ? paramsQueryArray[index + 1] : undefined
+
+			paramsQueryObject[item] = newAppropriateValue
+		}
+	})
+
+	return paramsQueryObject
+}
+
+function getInitialParams () {
+	let finalParamsObject = {}
+
+	if (isAddressBarIncludeQuery()) {
+		let paramsQueryObject = parseAddressBar()
+
+		for (let key in paramsQueryObject)
+			if (!finalParamsObject[key] && paramsQueryObject[key])
+				finalParamsObject[key] = paramsQueryObject[key]
+	}
+
+	if (localStorage.getItem('state')) {
+		let stateFromLS = JSON.parse(localStorage.getItem('state'))
+
+		for (let key in stateFromLS)
+			if (!finalParamsObject[key] && stateFromLS[key])
+				finalParamsObject[key] = stateFromLS[key]
+	}
+
+	return finalParamsObject
+}
+
+export { getInitialParams, parseAddressBar, isTextTheSame, getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL, addListeners, removeListeners, addStyleProperties, removeStyleProperties }

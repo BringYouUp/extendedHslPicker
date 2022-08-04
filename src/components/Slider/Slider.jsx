@@ -24,10 +24,6 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 			touchend: removeBounceEffectListener,
 		}
 
-	function removeBounceEffect() {
-		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
-	}
-
 	function addBounceEffectListener (e) {
 		addListeners (sliderWrapper.current, {
 			mousemove: addBounceEffect,
@@ -43,19 +39,22 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 			touchmove: addBounceEffect
 		})
 
-		removeBounceEffect()
+		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
 	}
 
-	function handleClickPosition () {
-		return {
-			startSliderTrack: sliderTrack.current.offsetLeft,
-			sliderTrackWidth: sliderTrack.current.offsetWidth,
+	function getRefValues (node, params) {
+		let returnedValues = []
+
+		for (let parameter of params) {
+			let appropriateValue = node.current[parameter]
+			returnedValues.push(appropriateValue)
 		}
+
+		return returnedValues
 	}
 
 	function addBounceEffect (e) {
-		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
-
+		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
 		let clickOffset = 0
 
 		addStyleProperties(sliderPoint.current, {
@@ -63,11 +62,17 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 			transform: 'scale(1.5)'
 		})
 
-		if (e.type === 'touchmove' || e.type === 'touchstart')
-			clickOffset = e.touches[0].pageX - startSliderTrack
+		if (e.type === 'touchmove') {
+			e.preventDefault()
+		}
 
-		if (e.type === 'mousemove' || e.type === 'mousedown')
+		if (e.type === 'touchmove' || e.type === 'touchstart') {
+			clickOffset = e.touches[0]?.pageX - startSliderTrack
+		}
+
+		if (e.type === 'mousemove' || e.type === 'mousedown') {
 			clickOffset = e.pageX - startSliderTrack
+		}
 
 		if (clickOffset < 0 || clickOffset > sliderTrackWidth) return
 
@@ -76,33 +81,47 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 
 		setRef(newValue)
 	}
-	
-	function oneTimeChanged_ (e) {
-		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
 
+	function toChangeOneTime(value) {
+		// console.log(value)
+		// console.log(hsl[relatedValue], offset)
+		oneTimeChanged(setRef, value)
+	}
+
+	
+	let [ intervalID, setIntervalID ] = useState(null)
+
+	function oneTimeChanged_ (e) {
+		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
 		let clickOffset = e.pageX
 
-		let isClickOnTheLeft = clickOffset < sliderTrack.current.offsetLeft
+		if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + sliderTrackWidth) return
 
-		if (hsl[relatedValue] === min && isClickOnTheLeft) return
-		if (hsl[relatedValue] === max && !isClickOnTheLeft) return
+		let isClickOnTheLeft = clickOffset < startSliderTrack
+		if (hsl[relatedValue] <= min && isClickOnTheLeft) return
+		if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
 
-		if (isClickOnTheLeft)
-			oneTimeChanged(setRef, -1)
-		else
-			oneTimeChanged(setRef, 1)
+			// debugger
+		console.log(isClickOnTheLeft)
+		console.log(clickOffset, startSliderTrack)
+		if (isClickOnTheLeft) {
+			console.log('obj')
+			setIntervalID(setInterval(toChangeOneTime, 75, -1))
+		}
+		else {
+			setIntervalID(setInterval(toChangeOneTime, 75, 1))
+		}
 	}
 
 	function toCheckForResetValue (e) {
-		let { startSliderTrack, sliderTrackWidth } = handleClickPosition()
-
+		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
 
 		let clickOffset = e.pageX
 		let isClickWithinSlider = clickOffset > startSliderTrack && clickOffset < sliderTrackWidth + startSliderTrack
 
-		console.log(isClickWithinSlider)
-		if (isClickWithinSlider)
+		if (isClickWithinSlider) {
 			dispatch(resetValueOfHSL(relatedValue))
+		}
 	}
 
 	function generateBackgroundColorForSliderTrack (relatedValue) {
@@ -132,6 +151,7 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 		addListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
 
 		return () => {
+			clearInterval(intervalID)
 			removeListeners(sliderWrapper.current, sliderWrapperInitListeners)
 			removeListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
 			removeListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
@@ -142,7 +162,10 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 		<div
 			ref={sliderWrapper}
 			className="sliderWrapper"
-			onClick={(e) => oneTimeChanged_(e)}
+			onMouseDown={(e) => { oneTimeChanged_(e)}}
+			onTouchStart={(e) => { oneTimeChanged_(e)}}
+			onMouseUp={() => { clearInterval(intervalID)}}
+			onTouchEnd={() => { clearInterval(intervalID)}}
 		>
 			<div
 				className="sliderWrapperInner"

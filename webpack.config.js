@@ -52,7 +52,7 @@ module.exports = () => {
 			open: true,
 			client: {
 		      overlay: true,
-		      progress: true,
+		      // progress: true,
 			},
 		},
 		devtool: 'source-map',
