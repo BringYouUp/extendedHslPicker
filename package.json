@@ -1,6 +1,6 @@
 {
   "name": "hsl-picker",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "another react application",
   "license": "MIT",
   "scripts": {
@@ -20,7 +20,8 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-redux": "^8.0.2",
-    "redux": "^4.2.0"
+    "redux": "^4.2.0",
+    "redux-thunk": "^2.4.1"
   },
   "devDependencies": {
     "@babel/cli": "7.17.0",

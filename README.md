@@ -1,5 +1,18 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.3.1 ---
+
+	** COMMON
+		- added buttons for improving the functionality of the application
+		- now user can copy URL address and share it with friends
+	** STYLE
+		- application redesiged
+		- added images
+		- there is uniform style
+	** FIXED
+		- some bugs fixed
+		- some bugs added
+
 --- VER. 0.3.0 ---
 
 	** COMMON

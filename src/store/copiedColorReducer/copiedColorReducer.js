@@ -1,10 +1,10 @@
-import { REFORMAT_FORMATS, UPDATE_CLIPBOARD} from './types.js'
+import { REFORMAT_FORMATS, TEXT_FROM_CLIPBOARD, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLIPBOARD } from './types.js'
 
-import { COPIED_COLOR_HISTORY } from '@/consts.js'
+import { INITIAL_COPIED_COLOR_REDUCER } from '@/consts.js'
 
 import { getRandomGeneratedNumber } from '@utils/utils.js'
 
-export const copiedColorReducer = (state = COPIED_COLOR_HISTORY, action) => {
+export const copiedColorReducer = (state = INITIAL_COPIED_COLOR_REDUCER, action) => {
 
 	switch (action.type) {
 		case REFORMAT_FORMATS:
@@ -14,10 +14,23 @@ export const copiedColorReducer = (state = COPIED_COLOR_HISTORY, action) => {
 				rgb: action.payload.rgb,
 				hex: action.payload.hex,
 			}
-		case UPDATE_CLIPBOARD:
+
+		case TEXT_FROM_CLIPBOARD:
 			return {
 				...state,
-				clipboard: action.payload
+				textFromClipboard: action.payload
+			}
+			
+		case IS_THE_SAME_TEXT_IN_CLIPBOARD:
+			return {
+				...state,
+				isTheSameTextInClipboard: action.payload
+			}
+
+		case IS_THE_SAME_URL_IN_CLIPBOARD:
+			return {
+				...state,
+				isTheSameUrlInClipboard: action.payload
 			}
 
 		default:

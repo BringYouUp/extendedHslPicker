@@ -6,7 +6,7 @@ import { createStore, useDispatch, useSelector } from "react-redux"
 
 import { resetValueOfHSL } from '@store/hslReducer/actions.js'
 
-const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
+export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max }) {
 	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
 	
@@ -83,13 +83,9 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 	}
 
 	function toChangeOneTime(value) {
-		// console.log(value)
-		// console.log(hsl[relatedValue], offset)
+		console.log(value)
 		oneTimeChanged(setRef, value)
 	}
-
-	
-	let [ intervalID, setIntervalID ] = useState(null)
 
 	function oneTimeChanged_ (e) {
 		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
@@ -101,16 +97,10 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 		if (hsl[relatedValue] <= min && isClickOnTheLeft) return
 		if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
 
-			// debugger
-		console.log(isClickOnTheLeft)
-		console.log(clickOffset, startSliderTrack)
-		if (isClickOnTheLeft) {
-			console.log('obj')
-			setIntervalID(setInterval(toChangeOneTime, 75, -1))
-		}
-		else {
-			setIntervalID(setInterval(toChangeOneTime, 75, 1))
-		}
+		if (isClickOnTheLeft)
+			oneTimeChanged(setRef, -1)
+		else
+			oneTimeChanged(setRef, 1)
 	}
 
 	function toCheckForResetValue (e) {
@@ -143,6 +133,7 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 
 	useEffect(() => {
 		setOffset(sliderTrack.current.offsetWidth * (hsl[relatedValue] / max) - 8)
+		
 	}, [ hsl ])
 
 	useEffect(() => {
@@ -151,26 +142,24 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 		addListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
 
 		return () => {
-			clearInterval(intervalID)
 			removeListeners(sliderWrapper.current, sliderWrapperInitListeners)
 			removeListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
 			removeListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
 		};
 	}, [])
 			
+
 	return (
 		<div
 			ref={sliderWrapper}
 			className="sliderWrapper"
-			onMouseDown={(e) => { oneTimeChanged_(e)}}
-			onTouchStart={(e) => { oneTimeChanged_(e)}}
-			onMouseUp={() => { clearInterval(intervalID)}}
-			onTouchEnd={() => { clearInterval(intervalID)}}
+
 		>
 			<div
 				className="sliderWrapperInner"
-				style={{background: generateBackgroundColorForSliderTrack(relatedValue)}}>
-				
+				style={{background: generateBackgroundColorForSliderTrack(relatedValue)}}
+				onClick={(e) => { oneTimeChanged_(e)}}
+			>
 				<div ref={sliderTrack} className="sliderTrack" >
 					<div 
 						ref={sliderPoint}
@@ -187,4 +176,3 @@ const Slider = ({ oneTimeChanged, relatedValue, setRef, min, max }) => {
 	)
 }
 
-export default Slider

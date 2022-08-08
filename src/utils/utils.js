@@ -1,8 +1,6 @@
-import { LS_MAIN_KEY, MAIN_FORMATS } from '@/consts.js'
+export const getRandomGeneratedNumber = (max, min = 0) => Math.floor(Math.random() * (max - min) + min)
 
-const getRandomGeneratedNumber = (max, min = 0) => Math.floor(Math.random() * (max - min) + min)
-
-function hslToRGB (h, s, l) {
+export function hslToRGB (h, s, l) {
 	s /= 100;
 	l /= 100;
 	const k = n => (n + h / 30) % 12
@@ -16,15 +14,15 @@ function hslToRGB (h, s, l) {
   	return [ r, g, b ]
 };
 
-const rgbToHEX = ([red, green, blue]) => [...[red, green, blue].map(item => item < 16 ? '0' + item.toString(16) : item.toString(16))]
+export const rgbToHEX = ([red, green, blue]) => [...[red, green, blue].map(item => item < 16 ? '0' + item.toString(16) : item.toString(16))]
 
-const getFormattedHSL = ({hue, saturation, lightness}) => `hsl(${hue}, ${saturation}%, ${lightness}%)`
+export const getFormattedHSL = ({hue, saturation, lightness}) => `hsl(${hue}, ${saturation}%, ${lightness}%)`
 
-const getFormattedRGB = ([red, green, blue]) => `rgb(${red}, ${green}, ${blue})`
+export const getFormattedRGB = ([red, green, blue]) => `rgb(${red}, ${green}, ${blue})`
 
-const getFormattedHEX = ([red, green, blue]) => `#${red}${green}${blue}`.toUpperCase()
+export const getFormattedHEX = ([red, green, blue]) => `#${red}${green}${blue}`.toUpperCase()
 
-function getFormatted (HSL) {
+export function getFormatted (HSL) {
 	let {hue, saturation, lightness } = HSL
 	let rgb = hslToRGB(hue, saturation, lightness )
 	let hex = rgbToHEX(rgb)
@@ -36,46 +34,42 @@ function getFormatted (HSL) {
 	}
 }
 
-function toCopyColorInClipboard (textToCopy) {
-	// debugger
-	console.log('tocopycolor')
+export function toCopyColorToClipboard (textToCopy) {
 	navigator.clipboard
 		.writeText(textToCopy)
 		.then(() => {})
 		.catch(err => {})
 }
 
-function addListeners (element, listeners) {
+export function addListeners (element = document, listeners) {
 	for (let listener in listeners)
 		element.addEventListener(listener, listeners[listener])
 }
 
-function removeListeners (element, listeners) {
+export function removeListeners (element = document, listeners) {
 	for (let listener in listeners)
 		element.removeEventListener(listener, listeners[listener])
 }
 
-function addStyleProperties (element, properties) {
+export function addStyleProperties (element, properties) {
 	for (let property in properties)
 		element.style[property] = properties[property]
 }
 
-function removeStyleProperties (element, properties) {
+export function removeStyleProperties (element, properties) {
 	for (let property of properties)
 		element.style.removeProperty(property)
 }
 
-function isTextTheSame (clipboardText, actualFormattedValues, defaultFormatToCopy) {
-	// let isOneTheSame = MAIN_FORMATS.some(item => clipboardText === actualFormattedValues[item])
-
-	return clipboardText === actualFormattedValues[defaultFormatToCopy]
+export function isTextTheSame (clipboardText, anotherText) {
+	return clipboardText === anotherText
 }
 
-function isAddressBarIncludeQuery () {
+export function isAddressBarIncludeQuery () {
 	return window.location.search
 }
 
-function parseAddressBar() {
+export function parseAddressBar() {
 	let  paramsQueryObject = {}
 	let [ questionMark, ...queryString ] = window.location.search.split('')
 
@@ -97,7 +91,7 @@ function parseAddressBar() {
 	return paramsQueryObject
 }
 
-function getInitialParams () {
+export function getInitialParams () {
 	let finalParamsObject = {}
 
 	if (isAddressBarIncludeQuery()) {
@@ -119,4 +113,6 @@ function getInitialParams () {
 	return finalParamsObject
 }
 
-export { getInitialParams, parseAddressBar, isTextTheSame, getRandomGeneratedNumber, getFormatted, toCopyColorInClipboard, getFormattedHSL, addListeners, removeListeners, addStyleProperties, removeStyleProperties }
+export function getUrlAddress () {
+	return window.location.href
+}

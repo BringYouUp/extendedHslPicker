@@ -1,20 +1,31 @@
-import { REFORMAT_FORMATS, UPDATE_CLIPBOARD } from './types.js'
+import { REFORMAT_FORMATS, TEXT_FROM_CLIPBOARD, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLIPBOARD } from './types.js'
 
-import { getFormatted } from '@utils/utils.js'
+import { getFormatted, isTextTheSame } from '@utils/utils.js'
 
-function reformatFormats (actualHSL) {
+export function reformatFormats (actualHSL) {
 	return {
 		type: REFORMAT_FORMATS,
 		payload: getFormatted(actualHSL)
 	}
 }
 
-function updateClipboard (textInClipboard) {
+export function copyClipboardTextToReducer (actualText) {
 	return {
-		type: UPADTE_CLIPBOARD,
-		payload: textInClipboard
+		type: TEXT_FROM_CLIPBOARD,
+		payload: actualText
 	}
 }
 
+export function checkForTheSameTextInClipboard (clipboardText, anotherText) {
+	return {
+		type: IS_THE_SAME_TEXT_IN_CLIPBOARD,
+		payload: isTextTheSame(clipboardText, anotherText)
+	}
+}
 
-export { reformatFormats, updateClipboard}
+export function checkForTheSameUrlInClipboard (clipboardText, anotherText) {
+	return {
+		type: IS_THE_SAME_URL_IN_CLIPBOARD,
+		payload: isTextTheSame(clipboardText, anotherText)
+	}
+}

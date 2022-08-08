@@ -2,63 +2,32 @@ import React, { useState, useEffect, useLayoutEffect } from "react";
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
+import { copyClipboardTextToReducer, checkForTheSameTextInClipboard, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { updateClipboard } from '@store/copiedColorReducer/actions.js'
+import { toCopyColorToClipboard, getUrlAddress } from '@utils/utils.js'
 
-import { getFormatted, toCopyColorInClipboard, getFormattedHSL, isTextTheSame } from '@utils/utils.js'
-
-import { MAIN_FORMATS } from '@/consts.js'
-
-const Board = () => {
+export default function Board () {
+	const dispatch = useDispatch()
 	
 	const hsl = useSelector(state => state.hsl)
-	const dispatch = useDispatch()
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
-
-	const [ isTheSame, setTheSame ] = useState(false)
-	const [ textFromClipBoard, setTextFromClipboard ] = useState(null)
 	
-	const toUpdateDefaultFormat = e => {
-		e.stopPropagation()
-		dispatch(getNewDefaultColorToCopy(e.target.dataset.formatToCopy))
-	}
-
-	const updateClipboard = () => {
-		setTextFromClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
-		toCopyColorInClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
+	function updateClipboard () {
+		dispatch(copyClipboardTextToReducer(copiedColorReducer[hsl.defaultFormatToCopy]))
+		toCopyColorToClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
 	}
 
 	useEffect(() => {
-		let isTheSameTextInClipboard = isTextTheSame(textFromClipBoard, copiedColorReducer, hsl.defaultFormatToCopy)
-		setTheSame(isTheSameTextInClipboard)
-	}, [ textFromClipBoard, copiedColorReducer, hsl.defaultFormatToCopy])
+		dispatch(checkForTheSameTextInClipboard(copiedColorReducer.textFromClipboard, copiedColorReducer[hsl.defaultFormatToCopy]))	
+	}, [ copiedColorReducer.hsl, copiedColorReducer.textFromClipboard, hsl.defaultFormatToCopy])
 
 	return (
 		<div
 			className="board"
 			style={{backgroundColor: copiedColorReducer.hsl}}
 			onClick={() => { updateClipboard()}}
-		>	
-			{
-				MAIN_FORMATS.map(format => {
-					return (
-						<h2
-							key={format}
-							style={{'filter': `opacity(${hsl.defaultFormatToCopy === format ? 1 : 0.25})`}}
-							data-format-to-copy={format}
-							onClick={e => { toUpdateDefaultFormat(e) }}>
-							{copiedColorReducer[format]}
-						</h2>
-					)
-				})
-			}
-
-			<div className="board-status">
-				{isTheSame ? 'Copied' : 'Copy'}
-			</div>
+		>
+			<span> {copiedColorReducer.isTheSameTextInClipboard ? 'Copied' : 'Copy'} </span>
 		</div>
 	)
 }
-
-export default Board
