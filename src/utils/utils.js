@@ -34,12 +34,17 @@ export function getFormatted (HSL) {
 	}
 }
 
-export function toCopyColorToClipboard (textToCopy) {
+export function toWriteTextIntoClipboard (textToCopy) {
 	navigator.clipboard
 		.writeText(textToCopy)
 		.then(() => {})
 		.catch(err => {})
 }
+
+export async function toReadTextFromClipboard () {
+	return await navigator.clipboard.readText()		 
+}
+
 
 export function addListeners (element = document, listeners) {
 	for (let listener in listeners)
@@ -81,8 +86,8 @@ export function parseAddressBar() {
 	['hue', 'saturation', 'lightness'].forEach(item => {
 		if (paramsQueryArray.includes(item)) {
 			let index = paramsQueryArray.indexOf(item)
-			let isNewValueIsNumber = Number.isInteger(+paramsQueryArray[index + 1])
-			let newAppropriateValue = isNewValueIsNumber ? paramsQueryArray[index + 1] : undefined
+			let isNewValueNumber = Number.isInteger(+paramsQueryArray[index + 1])
+			let newAppropriateValue = isNewValueNumber ? paramsQueryArray[index + 1] : undefined
 
 			paramsQueryObject[item] = newAppropriateValue
 		}
@@ -91,7 +96,7 @@ export function parseAddressBar() {
 	return paramsQueryObject
 }
 
-export function getInitialParams () {
+export function getStartedColor () {
 	let finalParamsObject = {}
 
 	if (isAddressBarIncludeQuery()) {
@@ -115,4 +120,25 @@ export function getInitialParams () {
 
 export function getUrlAddress () {
 	return window.location.href
+}
+
+export function isMobileDevice () {
+	return /Android|iPhone/i.test(navigator.userAgent)
+}
+
+export function generateBackgroundColorForSliderTrack (relatedValue, hsl) {
+	if (relatedValue === 'hue') return `linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))`
+	
+	let appropriateValue = `hsl(${hsl.hue}, 100%, 50%)`
+
+	if (relatedValue == 'saturation') return `linear-gradient(to right, grey, ${appropriateValue})`
+	if (relatedValue === 'lightness') return `linear-gradient(to right, black, ${appropriateValue}, white)`
+} 
+
+export function generateBackgroundColorForSliderPoint (relatedValue, hsl) {
+	let currentHue = hsl.hue
+
+	if (relatedValue === 'hue') return `hsl(${currentHue}, 100%, 50%)`
+	if (relatedValue == 'saturation') return `hsl(${currentHue}, ${hsl[relatedValue]}%, 50%)`
+	if (relatedValue === 'lightness') return `hsl(${currentHue}, 100%, ${hsl[relatedValue]}%)`
 }

@@ -1,5 +1,18 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.3.2 ---
+
+	** COMMON
+		- checking the clipboard when the user returns to the application
+	** STYLE
+		- added hover and active styles
+		- added adaptive design for mobile devices
+		- rethinking favorite colors list and menu
+	** FIXED
+		- removed horizonal scroll
+		- resetting value fixed
+		- now page reloading doesn't change user's clipboard 
+
 --- VER. 0.3.1 ---
 
 	** COMMON

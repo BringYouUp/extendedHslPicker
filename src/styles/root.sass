@@ -36,23 +36,22 @@ body > div
 
 .rootWrapper
 	width: 100%
-	max-width: 800px
+	max-width: 720px
 	height: 100%
 	transition: .5s
 	display: flex
 	flex-direction: column
 	align-items: center
 	justify-content: center
-	// overflow-x: hidden
 
 .title
 	width: 100%
 	display: flex
 	align-items: center
 	justify-content: center
+	padding: 0 0.5rem
 
 	h2
-		font-size: 1.2rem
 		display: block
 		padding: 1rem 0
 		width: 100%
@@ -60,6 +59,9 @@ body > div
 		flex: 1 1 0
 		cursor: pointer
 		&:hover
+			transform: translate(0, -.5rem)
+			color: rgba(0, 0, 0, 0.8)
+		&:active
 			transform: translate(0, -.25rem)
 	
 .main
@@ -71,25 +73,29 @@ body > div
 
 .board
 	cursor: pointer
-	width: 40vmin
-	height: 40vmin
+	width: 45vmin
+	height: 45vmin
 	display: grid
 	margin-bottom: 1rem
 	place-items: center
 	&:hover
 		transform: translate(0, -.5rem)
+	&:active
+		transform: translate(0, -.25rem)
 	&:hover span
 		opacity: .75
 	& > span
 		display: block
 		text-transform: uppercase
-		opacity: .25
+		opacity: .2
+		font-size: calc(1vmin + 1rem)
+
 
 .sliderWrapper
 	display: flex
 	justify-content: center
 	align-items: center
-	height: 3rem
+	height: 4rem
 	width: 100%
 
 .sliderWrapperInner
@@ -106,7 +112,7 @@ body > div
 	background-color: transparent
 	&:before, &:after
 		content: ''
-		height: 1.5rem
+		height: 2rem
 		width: 100vw
 		position: absolute
 		background-color: transparent
@@ -119,66 +125,78 @@ body > div
 
 .sliderPoint
 	z-index: 3
+	touch-action: none
 	border-radius: 50%
 	position: absolute
 	height: 1rem
 	width: 1rem
 	left: -0.5rem
 	top: -0.4rem
-	transition: 0.15s top, 0.33s transform, 0.2s left cubic-bezier(0,.28,.71,.99)
+	transition: 0.15s top, 0.2s transform, 0.2s left cubic-bezier(0,.28,.71,.99)
+
 
 .footer
+	z-index: 4
 	width: 100%
 	display: flex
-	justify-content: flex-start
+	justify-content: space-between
 	align-items: center
-	margin: 0 1rem
+	padding: 1rem 0.5rem
+	position: relative 
+	&.mobile
+		justify-content: space-between
+
 	img
 		width: 2rem
 		height: 2rem
-		display: inline block
 		margin-right: .5rem
-		&:hover
-			transform: translate(0, -.25rem)
-	
-	.favoriteCellList
-		height: 4rem
-		display: flex
-		align-items: center
-		width: auto
-		overflow-x: auto
-
-	.favoriteCell
-		display: inline-block
-		margin-right: .5rem
-		background: transparent
-		min-width: 2rem
-		width: 2rem
-		min-height: 2rem
-		height: 2rem
-		animation: popUpNewFavoriteColor .5s ease
-		cursor: pointer
+		filter: opacity(.75)
 		&:hover
 			transform: translate(0, -.5rem)
+			filter: opacity(.85)
+		&:active
+			transform: translate(0, -.25rem)
+	[data-name="random"]:active
+		animation: shakingCube .1s ease
+
+
+	.favoriteCellList
+		// height: 4rem
+		width: 4rem
+		overflow-x: hidden
+		overflow-y: overlay
+		position: absolute
+		bottom: 4rem
+		right: 0
+		max-height: calc(100vh - 4rem - 3.25rem)
+		display: flex
+		flex-direction: column
+		align-items: center
+
+	.favoriteCell
+		min-height: 2rem
+		min-width: 2rem
+		margin-bottom: 0.5rem
+		animation: popUpNewFavoriteColor .5s linear
+		cursor: pointer
+		&:hover
+			transform: translate(-.5rem, 0)
+
+@keyframes shakingCube
+	0%
+		transform: translate(0, -.25rem) rotate(0deg)
+	50%
+		transform: translate(0, -.25rem) rotate(90deg)
+	100%
+		transform: translate(0, -.25rem) rotate(0deg)
 
 @keyframes popUpNewFavoriteColor
 	from
-		transform: translateY(-2rem)
+		transform: translateX(-2rem)
 		filter: opacity(0)
 	to
-		transform: translateY(0)
+		transform: translateX(0)
 		filter: opacity(1)
-
-
-
-
-	
-
-
-
-
-
-
 
 ::-webkit-scrollbar
 	cursor: pointer

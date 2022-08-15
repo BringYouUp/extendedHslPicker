@@ -1,10 +1,10 @@
-import { INITIAL_HSL_REDUCER, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
+import { STARTED_HSL_REDUCER, INITIAL_HSL_REDUCER} from '@/consts.js'
 
 import { SELECT_HSL, RESET_VALUE_OF_HSL, GET_RANDOM_COLOR, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 import { getRandomGeneratedNumber } from '@utils/utils.js'
 
-export const hsl = (state = INITIAL_HSL_REDUCER, action) => {
+export const hsl = (state = STARTED_HSL_REDUCER, action) => {
 
 	switch (action.type) {
 		case GET_RANDOM_COLOR:

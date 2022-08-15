@@ -5,7 +5,7 @@ import { Main, Title, Slider, Board, Options } from '@components/index.js'
 import { createStore, useDispatch, useSelector } from "react-redux"
 import { selectHSL, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
 
-import { reformatFormats } from './store/copiedColorReducer/actions.js'
+import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
 
 import useLocalStorage from '@hooks/useLocalStorage.js'
 
@@ -16,7 +16,7 @@ import { IMG_BACK, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, 
 import { LS_MAIN_KEY, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
 // import * as firebase from 'firebase/app'
 
-import { addListeners, parseAddressBar, getRandomGeneratedNumber, getFormatted, toCopyColorToClipboard, getFormattedHSL } from '@utils/utils.js'
+import { toReadTextFromClipboard, getUrlAddress, addListeners, parseAddressBar, getRandomGeneratedNumber, getFormatted, toWriteTextIntoClipboard, getFormattedHSL } from '@utils/utils.js'
 
 // import firebase from './firebase'
 
@@ -27,9 +27,9 @@ const App = () => {
 
 	const [ stateLS, setStateLS ] = useLocalStorage(LS_MAIN_KEY, hsl)
 
-	const [ refHue, setRefHue ] = useState(INITIAL_HUE) 
-	const [ refSaturation, setRefSaturation ] = useState(INITIAL_SATURATION) 
-	const [ refLightness, setRefLightness ] = useState(INITIAL_LIGHTNESS) 
+	const [ refHue, setRefHue ] = useState(hsl.hue) 
+	const [ refSaturation, setRefSaturation ] = useState(hsl.saturation) 
+	const [ refLightness, setRefLightness ] = useState(hsl.lightness) 
 
 	// const db = firebase.firestore()
 
@@ -47,7 +47,7 @@ const App = () => {
 			dispatch(getRandomColor())
 		if (e.code === "Enter") {
 			e.preventDefault()
-			toCopyColorToClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
+			toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
 		}
 	}
 
@@ -80,9 +80,20 @@ const App = () => {
 
 	useEffect(() => { changeHSL() }, [refHue, refSaturation, refLightness])
 	
+	window.onfocus = () => {
+		let urlAddress = getUrlAddress()
+		toReadTextFromClipboard()
+			.then(data => {
+				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
+				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
+			})
+	}
+
 	useEffect(() => {
 		document.addEventListener('keyup', handlerDocumentKeypress)
-		return () => document.removeEventListener('keyup', handlerDocumentKeypress)
+		return () => {
+			document.removeEventListener('keyup', handlerDocumentKeypress)
+		} 
 	}, [])
 
 	const slidersConfig = [

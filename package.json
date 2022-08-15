@@ -1,6 +1,6 @@
 {
-  "name": "hsl-picker",
-  "version": "0.3.1",
+  "name": "extended-hsl-picker",
+  "version": "0.3.2",
   "description": "another react application",
   "license": "MIT",
   "scripts": {

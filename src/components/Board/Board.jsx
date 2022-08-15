@@ -2,9 +2,9 @@ import React, { useState, useEffect, useLayoutEffect } from "react";
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { copyClipboardTextToReducer, checkForTheSameTextInClipboard, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { toCopyColorToClipboard, getUrlAddress } from '@utils/utils.js'
+import { addHoverEmulatedEffects, removeHoverEmulatedEffects, toWriteTextIntoClipboard, getUrlAddress } from '@utils/utils.js'
 
 export default function Board () {
 	const dispatch = useDispatch()
@@ -14,7 +14,7 @@ export default function Board () {
 	
 	function updateClipboard () {
 		dispatch(copyClipboardTextToReducer(copiedColorReducer[hsl.defaultFormatToCopy]))
-		toCopyColorToClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
+		toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
 	}
 
 	useEffect(() => {
@@ -24,8 +24,10 @@ export default function Board () {
 	return (
 		<div
 			className="board"
-			style={{backgroundColor: copiedColorReducer.hsl}}
-			onClick={() => { updateClipboard()}}
+			style={{
+				backgroundColor: copiedColorReducer.hsl
+			}}
+			onClick={() => { updateClipboard() }}
 		>
 			<span> {copiedColorReducer.isTheSameTextInClipboard ? 'Copied' : 'Copy'} </span>
 		</div>

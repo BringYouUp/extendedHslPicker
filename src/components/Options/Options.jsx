@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from "react-redux"
 
 import useLocalStorage from '@hooks/useLocalStorage.js'
 
-import { getFormattedHSL, getUrlAddress, toCopyColorToClipboard} from '@utils/utils.js'
+import { addStyleProperties, removeStyleProperties, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard} from '@utils/utils.js'
 import { selectHSL, getRandomColor, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
-import { copyClipboardTextToReducer, checkForTheSameTextInClipboard, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { IMG_COPIED_URL, IMG_MENU, IMG_BACK, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_OPENED_LIST, IMG_CLOSED_LIST } from '@/resources.js'
+import { IMG_COPIED_URL, IMG_MENU, IMG_BACK, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
 
 
 export default function Options ({ relatedValue, setRef, toResetValue, min, max, value }) {
@@ -19,8 +19,8 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
 	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
-	const [ isOpenedList, setIsOpenedList ] = useState(true)
-	const [ isMenuOpened, setIsMenuOpened ] = useState(false)
+	const [ isOpenedList, setIsOpenedList ] = useState(false)
+	const [ isMenuOpened, setIsMenuOpened ] = useState(true)
 
 	const [ favoritesLS, setFavoritesLS ] = useLocalStorage('favoriteColorsList', [])
 
@@ -47,79 +47,87 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 	function toCopyUrlIntoClipboard () {
 		let urlAddress = getUrlAddress()
 
+		toWriteTextIntoClipboard(urlAddress)
 		dispatch(copyClipboardTextToReducer(urlAddress))
 	}
 
 	useEffect(() => {
 		let urlAddress = getUrlAddress()
 		
-		toCopyColorToClipboard(urlAddress)
 		dispatch(checkForTheSameUrlInClipboard(copiedColorReducer.textFromClipboard, urlAddress))
 	}, [ copiedColorReducer.hsl, copiedColorReducer.textFromClipboard, hsl.defaultFormatToCopy])
 
 	useEffect(() => { setIsUniqueColor(isUnique()) }, [hsl, favoritesLS])
 	
 	return (
-		<div className='footer'>
-			<img
-				src={IMG_MENU}
-				onClick={() => { setIsMenuOpened(prev => !prev) }}
-				alt="" 
-				style={{
-					'transform': `${isMenuOpened ? 'rotate(90deg)' : 'rotate(0deg)'}`
-				}}/>
+		<div className={`footer`}>
+			{
+				!isMobileDevice() &&
+				<img
+					src={IMG_MENU}
+					onClick={() => { setIsMenuOpened(prev => !prev) }}
+					alt="Menu" 
+					style={{
+						'transform': `${isMenuOpened ? 'rotate(90deg)' : 'rotate(0deg)'}`
+					}}/>
+			}
 			{
 				isMenuOpened &&
 				<>
 					<img
 						src={ IMG_BACK }
 						onClick={() => { window.location.href = "about:home" }}
-						alt="" />
+						alt="Back" />
 						
-					<img src={ IMG_HELP } alt="" />
+					<img
+						src={ IMG_HELP }
+						alt="Help Station" />
 
 					<img
 						src={ copiedColorReducer.isTheSameUrlInClipboard ? IMG_COPIED_URL : IMG_COPY_URL }
 						onClick={() => { toCopyUrlIntoClipboard() }}
-						alt="" />
+						alt="Copy URL" />
 
 					<img
 						onClick={() => dispatch(getRandomColor())}
+						data-name="random"
 						src={IMG_RANDOM}
-						alt="" />
+						alt="Random Color" />
 
 					<img
 						onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}}
 						src={isUniqueColor ? IMG_ADD : IMG_ADDED}
-						alt="" />
+						alt="Add to Favorite" />
 				</>
 			}
 
 			<img
 				onClick={() => { setIsOpenedList(prev => !prev)}}
-				src={ IMG_CLOSED_LIST }
-				alt=""
+				src={ IMG_LIST }
+				alt="Show / Hide Favorite List"
 				style={{
-					'transform': `${isOpenedList ? 'rotate(360deg)' : 'rotate(180deg)'}`
-				}}/>
+					'transform': `${isOpenedList
+						? 'rotate(0deg)'
+						: 'rotate(-90deg)'}`					
+				}} />
 			
-			<div className='favoriteCellList'>
-				{ isOpenedList &&
-					favoritesLS.map(item => {
-						return (
-							<div
-								key={item.id}
-								className="favoriteCell"
-								style={
-									{
+			{ isOpenedList &&
+				<div className={`favoriteCellList`}>
+					{
+						favoritesLS.map(item => {
+							return (
+								<div
+									key={item.id}
+									className="favoriteCell"
+									style={{
 										backgroundColor: getFormattedHSL(item)
-									}
-								}
-								onClick={() => dispatch(selectHSL(item))} /> 
-						)
-					})
-				}
-			</div>
+									}}
+									onClick={() => dispatch(selectHSL(item))} /> 
+							)
+						})
+					}
+				</div>
+			}
 		</div>
 
 	)
