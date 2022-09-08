@@ -1,55 +1,101 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+
+import { Form } from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import useLocalStorage from '@hooks/useLocalStorage.js'
+import { toReadTextFromClipboard, updateUrlAdress, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard, getRandomGeneratedNumber } from '@utils/utils.js'
 
-import { addStyleProperties, removeStyleProperties, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard} from '@utils/utils.js'
-import { selectHSL, getRandomColor, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
+import { selectHSL, getRandomColor } from '@store/hslReducer/actions.js'
 
-import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { IMG_COPIED_URL, IMG_MENU, IMG_BACK, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
+import { STARTED_COLLECTION } from '@/consts.js'
 
+import { IMG_USERED, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
 
-export default function Options ({ relatedValue, setRef, toResetValue, min, max, value }) {
+import { getCollectionFromFireStore, getDataFromFireStore, updateFirestore, unsub } from '@utils/firestoreUtils.js'
+
+import { app, db, auth } from '@/../firebase-config.js'
+
+import { signOut } from "firebase/auth";
+
+export default function Options ({ setNotifications, currentUser, setCurrentUser }) {
 	const dispatch = useDispatch()
 	
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
 	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
-	const [ isOpenedList, setIsOpenedList ] = useState(false)
+	const [ isOpenedList, setIsOpenedList ] = useState(true)
 	const [ isMenuOpened, setIsMenuOpened ] = useState(true)
+	const [ isAuthOpened, setIsAuthOpened ] = useState(false)
 
-	const [ favoritesLS, setFavoritesLS ] = useLocalStorage('favoriteColorsList', [])
+	const [ favoriteColorsList, setFavoriteColorsList ] = useState([])
+
+	let favoriteListSub = null
 
 	function isUnique () {
 		let formattedNewColorHSLA = getFormattedHSL(hsl)
-		let isNewColorUnique = favoritesLS.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
+		let isNewColorUnique = favoriteColorsList.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
 
 		return isNewColorUnique
 	}
 
 	function toAddToFavorite () {
-			if (!isUnique()) return
+		if (!isUnique()) return
 
-			let { hue, saturation, lightness } = hsl
+		let { hue, saturation, lightness } = hsl
+		let newFavoriteList = [ { hue, saturation, lightness, id: Date.now() }, ...favoriteColorsList]
 
-			setFavoritesLS(prev => [ { hue, saturation, lightness, id: Date.now() }, ...prev])
-		}
+		updateFirestore('favoriteColorsList', newFavoriteList, STARTED_COLLECTION, currentUser)
+		setDataIntoLocalStorage('favoriteColorsList', newFavoriteList)
+
+	}
+
 	function toRemoveFromFavorite () {
-			let newFavorites = favoritesLS.filter(item => item.hue !== hsl.hue)
-
-			setFavoritesLS(prev => [...newFavorites])
-		}
+		let newFavoriteList = favoriteColorsList.filter(item => item.hue !== hsl.hue)
+		updateFirestore('favoriteColorsList', newFavoriteList, STARTED_COLLECTION, currentUser)
+	}
 
 	function toCopyUrlIntoClipboard () {
+		// let urlAddress = getUrlAddress()
+
+		// toWriteTextIntoClipboard(urlAddress)
+		// dispatch(copyClipboardTextToReducer(urlAddress))
+
+		setNotifications(prev => [prev, 1])
+	}
+
+	function updateFavoriteColorsListViaFirestore (actualDataFromFirestore) {
+		setFavoriteColorsList(prev => actualDataFromFirestore?.favoriteColorsList || prev)
+	}
+
+	function getRandomColor () {
+		let newHSL = {
+			hue: getRandomGeneratedNumber(0, 361),
+			saturation: getRandomGeneratedNumber(25, 100),
+			lightness: getRandomGeneratedNumber(20, 100),
+		}
+
+		updateUrlAdress(newHSL)
+		dispatch(selectHSL(newHSL))
+		updateFirestore('hsl', newHSL, STARTED_COLLECTION, currentUser)
+	}
+
+	useEffect(() => {
 		let urlAddress = getUrlAddress()
 
-		toWriteTextIntoClipboard(urlAddress)
-		dispatch(copyClipboardTextToReducer(urlAddress))
-	}
+		toReadTextFromClipboard()
+			.then(data => {
+				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
+				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
+			})
+	}, [copiedColorReducer.textFromClipboard, copiedColorReducer.hsl])
+
+	useEffect(() => {
+		favoriteListSub = unsub(updateFavoriteColorsListViaFirestore, STARTED_COLLECTION, currentUser)
+	}, [currentUser])
 
 	useEffect(() => {
 		let urlAddress = getUrlAddress()
@@ -57,8 +103,39 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 		dispatch(checkForTheSameUrlInClipboard(copiedColorReducer.textFromClipboard, urlAddress))
 	}, [ copiedColorReducer.hsl, copiedColorReducer.textFromClipboard, hsl.defaultFormatToCopy])
 
-	useEffect(() => { setIsUniqueColor(isUnique()) }, [hsl, favoritesLS])
-	
+	useEffect(() => {
+		setIsUniqueColor(isUnique())
+	}, [hsl, favoriteColorsList])
+
+	useEffect(() => {
+		setIsUniqueColor(isUnique())
+	}, [hsl, favoriteColorsList])
+
+	useEffect(() => {
+		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
+			.then(collection => getDataFromFireStore(collection, 'favoriteColorsList')
+			.then(dataFromFireStore => {
+				setFavoriteColorsList(dataFromFireStore)
+				favoriteListSub = unsub(updateFavoriteColorsListViaFirestore, STARTED_COLLECTION, currentUser)
+			}))
+
+		return () => {
+			typeof favoriteListSub === "function" && favoriteListSub()
+		}
+	}, [])
+
+	function signOutFromProfile () {
+		signOut(auth)
+			.then(() => {
+				localStorage.setItem('currentUser', Date.now())
+				setCurrentUser(localStorage.getItem('currentUser'))
+			})
+			.catch((error) => { });
+	}
+
+
+	// console.log(auth)
+
 	return (
 		<div className={`footer`}>
 			{
@@ -71,40 +148,47 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 						'transform': `${isMenuOpened ? 'rotate(90deg)' : 'rotate(0deg)'}`
 					}}/>
 			}
+
 			{
 				isMenuOpened &&
 				<>
 					<img
-						src={ IMG_BACK }
-						onClick={() => { window.location.href = "about:home" }}
-						alt="Back" />
-						
-					<img
-						src={ IMG_HELP }
-						alt="Help Station" />
+						src={ auth.currentUser
+							? IMG_LOGOUT
+							: isAuthOpened ? IMG_USERED : IMG_USER }
+						alt="Auth"
+						onClick={() => { !auth.currentUser?.uid
+							? setIsAuthOpened(prev => !prev)
+							: signOutFromProfile() }}
+						title="Auth" />
+
 
 					<img
 						src={ copiedColorReducer.isTheSameUrlInClipboard ? IMG_COPIED_URL : IMG_COPY_URL }
-						onClick={() => { toCopyUrlIntoClipboard() }}
-						alt="Copy URL" />
+						onClick={(() => { toCopyUrlIntoClipboard() })}
+						alt="Copy URL"
+						title="Copy URL" />
 
 					<img
-						onClick={() => dispatch(getRandomColor())}
+						onClick={() => getRandomColor()}
 						data-name="random"
 						src={IMG_RANDOM}
-						alt="Random Color" />
+						alt="Get random Color"
+						title="Get random Color" />
 
 					<img
 						onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}}
 						src={isUniqueColor ? IMG_ADD : IMG_ADDED}
-						alt="Add to Favorite" />
+						alt="Add to Favorite"
+						title="Add to Favorite" />
 				</>
 			}
 
 			<img
 				onClick={() => { setIsOpenedList(prev => !prev)}}
 				src={ IMG_LIST }
-				alt="Show / Hide Favorite List"
+				alt="Show / Hide Favorite List"			
+				title="title / Hide Favorite List"
 				style={{
 					'transform': `${isOpenedList
 						? 'rotate(0deg)'
@@ -114,7 +198,7 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 			{ isOpenedList &&
 				<div className={`favoriteCellList`}>
 					{
-						favoritesLS.map(item => {
+						favoriteColorsList.map(item => {
 							return (
 								<div
 									key={item.id}
@@ -128,7 +212,14 @@ export default function Options ({ relatedValue, setRef, toResetValue, min, max,
 					}
 				</div>
 			}
-		</div>
 
+			{
+				isAuthOpened && <Form
+					currentUser={currentUser}
+					setCurrentUser={setCurrentUser}
+					setIsAuthOpened={setIsAuthOpened}
+				/>
+			}
+		</div>
 	)
 }

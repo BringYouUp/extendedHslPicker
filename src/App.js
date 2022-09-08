@@ -1,37 +1,56 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
-import { Main, Title, Slider, Board, Options } from '@components/index.js'
+import { Main, Title, Options, Notification } from '@components/index.js'
 
-import { createStore, useDispatch, useSelector } from "react-redux"
-import { selectHSL, getRandomColor, getNewDefaultColorToCopy } from './store/hslReducer/actions.js'
+import { useDispatch, useSelector } from "react-redux"
+
+import { selectHSL } from './store/hslReducer/actions.js'
 
 import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
 
-import useLocalStorage from '@hooks/useLocalStorage.js'
-
 import styles from './App.module.sass'
 
-import { IMG_BACK, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_OPENED_LIST, IMG_CLOSED_LIST } from '@/resources.js'
+import { STARTED_COLLECTION } from '@/consts.js'
 
-import { LS_MAIN_KEY, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@/consts.js'
-// import * as firebase from 'firebase/app'
+import { getStartedColor, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
-import { toReadTextFromClipboard, getUrlAddress, addListeners, parseAddressBar, getRandomGeneratedNumber, getFormatted, toWriteTextIntoClipboard, getFormattedHSL } from '@utils/utils.js'
+import { unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
 
-// import firebase from './firebase'
+import { auth } from './../firebase-config.js'
 
 const App = () => {
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
-	const [ stateLS, setStateLS ] = useLocalStorage(LS_MAIN_KEY, hsl)
-
 	const [ refHue, setRefHue ] = useState(hsl.hue) 
 	const [ refSaturation, setRefSaturation ] = useState(hsl.saturation) 
 	const [ refLightness, setRefLightness ] = useState(hsl.lightness) 
 
-	// const db = firebase.firestore()
+	const [ currentUser, setCurrentUser ] = useState(() => {
+		let currentUser = localStorage.getItem('currentUser')
+		if (currentUser) return currentUser
+
+		localStorage.setItem('currentUser', Date.now())
+		return localStorage.getItem('currentUser')
+	}) 
+
+	let hslSub
+
+	const [ notifications, setNotifications ] = useState([
+	// {
+	// 	id: 1662638384593,
+	// 	massage
+	// },
+	// {
+	// 	id: 1662638385953
+	// 	id: 1662638385954
+
+	// },
+	// {
+	// 	id: 1662638385954
+	// }
+	])
 
 	function changeHSL () {
 		let
@@ -40,11 +59,15 @@ const App = () => {
 			lightness = refLightness
 
 		dispatch(selectHSL({ hue, saturation, lightness }))
+		setDataIntoLocalStorage('hsl', { hue, saturation, lightness, defaultFormatToCopy: hsl.defaultFormatToCopy })
+	}
+
+	function updateHslStateViaFirestore (actualDataFromFirestore) {
+		let { hue, saturation, lightness } = actualDataFromFirestore.hsl
+		dispatch(selectHSL({ hue, saturation, lightness }))
 	}
 	
 	function handlerDocumentKeypress (e) {
-		if (e.code === "Space")
-			dispatch(getRandomColor())
 		if (e.code === "Enter") {
 			e.preventDefault()
 			toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
@@ -53,18 +76,21 @@ const App = () => {
 
 	function oneTimeChanged (fn, value) {fn (prev => +prev + value) }
 
-	function getGetQuery(actualState) {
-		return Object.keys(actualState).map(item => `${item}=${actualState[item]}&&`).join('')
-	}
+	useEffect(() => {
+		console.log('currentUser', currentUser)
+		localStorage.setItem('currentUser', currentUser)
 
-	function updateHistory () {
-		let getQuery = getGetQuery(hsl)
+		if (auth.currentUser?.uid)
+			setCurrentUser(auth.currentUser.uid)
 
-		let baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-		let newUrl = `${baseUrl}?${getQuery}`
-		
-		history.replaceState({}, copiedColorReducer.hsl, newUrl);
-	} 
+		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
+			.then(collection => getDataFromFireStore(collection, 'hsl'))
+			.then(dataFromFireStore => {
+				let { hue, saturation, lightness } = dataFromFireStore
+				dispatch(selectHSL({ hue, saturation, lightness }))
+				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
+			})
+	}, [currentUser])
 
 	useEffect(() => {
 		let  {hue, saturation, lightness} = hsl
@@ -73,12 +99,12 @@ const App = () => {
 		setRefSaturation (saturation)
 		setRefLightness (lightness)
 
-		updateHistory()
-		setStateLS(prev => hsl)
 		dispatch(reformatFormats(hsl))
 	}, [hsl])
 
-	useEffect(() => { changeHSL() }, [refHue, refSaturation, refLightness])
+	useEffect(() => {
+		changeHSL()
+	}, [refHue, refSaturation, refLightness])
 	
 	window.onfocus = () => {
 		let urlAddress = getUrlAddress()
@@ -90,8 +116,20 @@ const App = () => {
 	}
 
 	useEffect(() => {
+		console.log(auth)
+
 		document.addEventListener('keyup', handlerDocumentKeypress)
+
+		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
+			.then(collection => getDataFromFireStore(collection, 'hsl')
+			.then(dataFromFireStore => {
+				let { hue, saturation, lightness } = dataFromFireStore
+				dispatch(selectHSL({ hue, saturation, lightness }))
+				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
+			}))
+
 		return () => {
+			typeof hslSub === "function" && hslSub()
 			document.removeEventListener('keyup', handlerDocumentKeypress)
 		} 
 	}, [])
@@ -119,9 +157,29 @@ const App = () => {
 
 	return (
 		<div className="rootWrapper">
+			<div className="notifications">
+				{
+					notifications.map(notification => {
+						return (
+							<Notification
+								key={notification}
+							/>
+						)
+					})
+				}
+				
+			</div>
 			<Title />
-			<Main sliders={slidersConfig} oneTimeChanged={oneTimeChanged} />
-			<Options />
+			<Main
+				currentUser={currentUser}
+				sliders={slidersConfig}
+				oneTimeChanged={oneTimeChanged}
+			/>
+			<Options
+				currentUser={currentUser}
+				setCurrentUser={setCurrentUser}
+				setNotifications={setNotifications}
+			/>
 		</div>
 	)
 }

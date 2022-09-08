@@ -1,4 +1,4 @@
-export const getRandomGeneratedNumber = (max, min = 0) => Math.floor(Math.random() * (max - min) + min)
+export const getRandomGeneratedNumber = (min, max) => Math.floor(Math.random() * (max - min) + min)
 
 export function hslToRGB (h, s, l) {
 	s /= 100;
@@ -96,26 +96,37 @@ export function parseAddressBar() {
 	return paramsQueryObject
 }
 
-export function getStartedColor () {
+export function getStartedColorFromAddressBar() {
 	let finalParamsObject = {}
+	
+	let paramsQueryObject = parseAddressBar()
 
-	if (isAddressBarIncludeQuery()) {
-		let paramsQueryObject = parseAddressBar()
-
-		for (let key in paramsQueryObject)
-			if (!finalParamsObject[key] && paramsQueryObject[key])
-				finalParamsObject[key] = paramsQueryObject[key]
-	}
-
-	if (localStorage.getItem('state')) {
-		let stateFromLS = JSON.parse(localStorage.getItem('state'))
-
-		for (let key in stateFromLS)
-			if (!finalParamsObject[key] && stateFromLS[key])
-				finalParamsObject[key] = stateFromLS[key]
-	}
+	for (let key in paramsQueryObject)
+		if (!finalParamsObject[key] && paramsQueryObject[key])
+			finalParamsObject[key] = paramsQueryObject[key]
 
 	return finalParamsObject
+}
+
+export function getStartedColorFromLocalStorage() {
+	let finalParamsObject = {}
+	let stateFromLS = getDataFromLocalStorage('hsl')
+
+	for (let key in stateFromLS)
+		if (!finalParamsObject[key] && stateFromLS[key])
+			finalParamsObject[key] = stateFromLS[key]
+
+	return finalParamsObject
+}
+
+export function getStartedColor () {
+	if (isAddressBarIncludeQuery())
+		return getStartedColorFromAddressBar()
+
+	if (localStorage.getItem('hsl'))
+		return getStartedColorFromLocalStorage()
+	
+	return null
 }
 
 export function getUrlAddress () {
@@ -141,4 +152,47 @@ export function generateBackgroundColorForSliderPoint (relatedValue, hsl) {
 	if (relatedValue === 'hue') return `hsl(${currentHue}, 100%, 50%)`
 	if (relatedValue == 'saturation') return `hsl(${currentHue}, ${hsl[relatedValue]}%, 50%)`
 	if (relatedValue === 'lightness') return `hsl(${currentHue}, 100%, ${hsl[relatedValue]}%)`
+}
+
+export function setDataIntoLocalStorage (key, data) {
+	localStorage.setItem(key, JSON.stringify(data))
+}
+
+export function getDataFromLocalStorage (key) {
+	return JSON.parse(localStorage.getItem(key))
+}
+
+export function getGetQuery(actualState) {
+	return Object.keys(actualState).map((item, index) => {
+
+		if (item === 'defaultFormatToCopy')
+			return ''
+
+		if (index > 0)
+			return `&&${item}=${actualState[item]}`
+
+		else
+			return `${item}=${actualState[item]}`
+		
+	})
+	.join('')
+}
+
+export function updateUrlAdress (actualState) {
+	let newGetQuery = getGetQuery(actualState)
+	let baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;	
+	let newUrl = `${baseUrl}?${newGetQuery}`
+
+	history.replaceState({}, {}, newUrl)
+}
+
+export function updateBoardSpanColor (actualState) {
+	let newFormattedColor = {...actualState} 
+
+	if (Number(newFormattedColor.lightness) > 10)
+		newFormattedColor.lightness = newFormattedColor.lightness - 10
+	else
+		newFormattedColor.lightness = newFormattedColor.lightness + 20
+
+	return getFormattedHSL(newFormattedColor)
 }

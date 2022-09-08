@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
-import { createStore, useSelector } from "react-redux"
+import { useSelector } from "react-redux"
 
 import { Slider, Board } from '@components/index.js'
 
-export default function Main ({ sliders , oneTimeChanged }) {
+export default function Main ({ currentUser, setCurrentUser, sliders , oneTimeChanged }) {
 	const hsl = useSelector(state => state.hsl)
 	
 	return (
@@ -13,7 +13,9 @@ export default function Main ({ sliders , oneTimeChanged }) {
 			{
 				sliders.map(({ relatedValue, setRef, min, max}) => {
 					return (
-						<Slider 
+						<Slider
+							currentUser={currentUser}
+							setCurrentUser={setCurrentUser}
 							key={relatedValue}
 							oneTimeChanged={oneTimeChanged}
 							relatedValue={relatedValue}

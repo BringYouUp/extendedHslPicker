@@ -1,11 +1,11 @@
 {
   "name": "extended-hsl-picker",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "another react application",
   "license": "MIT",
   "scripts": {
     "build": "webpack --mode production",
-    "dev": "webpack serve --mode development",
+    "dev": "webpack serve --no-hot --mode development ",
     "serve": "serve \"./dist\" -s"
   },
   "browserslist": [
@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "app-root-path": "^3.0.0",
-    "firebase": "^9.8.4",
+    "firebase": "^9.9.3",
     "firebase-tools": "^11.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

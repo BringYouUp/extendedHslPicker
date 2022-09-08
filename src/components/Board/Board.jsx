@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React from "react";
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { copyClipboardTextToReducer, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, checkForTheSameTextInClipboard, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { addHoverEmulatedEffects, removeHoverEmulatedEffects, toWriteTextIntoClipboard, getUrlAddress } from '@utils/utils.js'
+import { updateBoardSpanColor, toWriteTextIntoClipboard, toReadTextFromClipboard } from '@utils/utils.js'
 
 export default function Board () {
 	const dispatch = useDispatch()
-	
+
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
-	
+
 	function updateClipboard () {
 		dispatch(copyClipboardTextToReducer(copiedColorReducer[hsl.defaultFormatToCopy]))
 		toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
+		toReadTextFromClipboard()
+			.then(data => {
+				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
+			})
 	}
-
-	useEffect(() => {
-		dispatch(checkForTheSameTextInClipboard(copiedColorReducer.textFromClipboard, copiedColorReducer[hsl.defaultFormatToCopy]))	
-	}, [ copiedColorReducer.hsl, copiedColorReducer.textFromClipboard, hsl.defaultFormatToCopy])
 
 	return (
 		<div
@@ -29,7 +29,11 @@ export default function Board () {
 			}}
 			onClick={() => { updateClipboard() }}
 		>
-			<span> {copiedColorReducer.isTheSameTextInClipboard ? 'Copied' : 'Copy'} </span>
+			<span
+				style={{
+					color: updateBoardSpanColor(hsl)
+				}}
+			> {copiedColorReducer.isTheSameTextInClipboard ? 'Copied' : 'Copy'} </span>
 		</div>
 	)
 }

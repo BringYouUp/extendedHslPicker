@@ -1,44 +1,30 @@
 import React, { useState, useEffect, useRef, useLayoutEffect} from "react";
 
-import { generateBackgroundColorForSliderTrack, generateBackgroundColorForSliderPoint, addListeners, removeListeners, addStyleProperties, removeStyleProperties } from '@utils/utils.js'
+import { updateUrlAdress, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
 import { resetValueOfHSL } from '@store/hslReducer/actions.js'
 
-export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max }) {
+import { unsub, updateFirestore } from '@utils/firestoreUtils.js'
+
+export default function Slider ({ currentUser, oneTimeChanged, relatedValue, setRef, min, max }) {
 	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
-	
+	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
+
 	const sliderWrapper = useRef(null)
 	const sliderTrack = useRef(null)
 	const sliderPoint = useRef(null)
 
 	const [ offset, setOffset ] = useState(0)
 
-	let sliderWrapperInitListeners = {
-			mouseleave: removeBounceEffectListener,
-			mousedown: addBounceEffectListener,
-			mouseup: removeBounceEffectListener,
-			touchstart: addBounceEffectListener,
-			touchend: removeBounceEffectListener,
-		}
-
-	function addBounceEffectListener (e) {
-		addListeners (sliderWrapper.current, {
-			mousemove: addBounceEffect,
-			touchmove: addBounceEffect
-		})
-
-		addBounceEffect(e)
-	}
+	const startCollection = 'users'
 
 	function removeBounceEffectListener (e) {
-		removeListeners (sliderWrapper.current, {
-			mousemove: addBounceEffect,
-			touchmove: addBounceEffect
-		})
 		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
+		updateUrlAdress(hsl)
+		updateFirestore('hsl', hsl, startCollection, currentUser)
 	}
 
 	function getRefValues (node, params) {
@@ -53,17 +39,20 @@ export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max
 	}
 
 	function addBounceEffect (e) {
+		// e.preventDefault()
+		if (e.type === 'mousemove' && e.nativeEvent.which !== 1) return
+
 		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
 		let clickOffset = 0
 
 		addStyleProperties(sliderPoint.current, {
-			top: '-2rem',
-			transform: 'scale(1.5)'
+			top: '-2.5rem',
+			transform: 'scale(2)'
 		})
 
-		if (e.type === 'touchmove') {
-			e.preventDefault()
-		}
+		// if (e.type === 'touchmove') {
+		// 	e.preventDefault()
+		// }
 
 		if (e.type === 'touchmove' || e.type === 'touchstart') {
 			clickOffset = e.touches[0]?.pageX - startSliderTrack
@@ -90,7 +79,6 @@ export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max
 		let isClickOnTheLeft = clickOffset < startSliderTrack
 		if (hsl[relatedValue] <= min && isClickOnTheLeft) return
 		if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
-
 		if (isClickOnTheLeft)
 			oneTimeChanged(setRef, -1)
 		else
@@ -107,32 +95,21 @@ export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max
 			dispatch(resetValueOfHSL(relatedValue))
 	}
 
-	useEffect(() => { setOffset(sliderTrack.current.offsetWidth * (hsl[relatedValue] / max) - 8) }, [ hsl ])
-
 	useEffect(() => {
-		addListeners(sliderWrapper.current, sliderWrapperInitListeners)
-		addListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
-		addListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
-		addListeners(window, {resize: resizing})
-
-		return () => {
-			removeListeners(sliderWrapper.current, sliderWrapperInitListeners)
-			removeListeners(sliderTrack.current, {dblclick: toCheckForResetValue})
-			removeListeners(sliderPoint.current, {dblclick: toCheckForResetValue})
-		};
-	}, [])
-
-
-	console.log(hsl)
-	function resizing () {
-		console.log(hsl)
 		setOffset(sliderTrack.current.offsetWidth * (hsl[relatedValue] / max) - 8)
-	}
-			
+	}, [ hsl ])
+		
 	return (
 		<div
 			ref={sliderWrapper}
 			className="sliderWrapper"
+			onMouseDown={addBounceEffect}
+			onMouseUp={removeBounceEffectListener}
+			onTouchStart={addBounceEffect}
+			onTouchEnd={removeBounceEffectListener}
+			onMouseLeave={removeBounceEffectListener}
+			onMouseMove={addBounceEffect}
+			onTouchMove={addBounceEffect}
 		>
 			<div
 				className="sliderWrapperInner"
@@ -142,7 +119,10 @@ export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max
 					}}
 				onClick={(e) => { oneTimeChanged_(e)}}
 			>
-				<div ref={sliderTrack} className="sliderTrack" >
+				<div ref={sliderTrack}
+					className="sliderTrack"
+					onDoubleClick={toCheckForResetValue}
+				>
 					<div 
 						ref={sliderPoint}
 						style={
@@ -150,7 +130,9 @@ export default function Slider ({ oneTimeChanged, relatedValue, setRef, min, max
 								backgroundColor: generateBackgroundColorForSliderPoint(relatedValue, hsl),
 								left: offset + 'px'
 							}}
-						className="sliderPoint" />	
+						className="sliderPoint"
+						onDoubleClick={toCheckForResetValue} 
+					/>	
 				</div>
 
 			</div>

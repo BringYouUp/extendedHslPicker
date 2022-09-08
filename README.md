@@ -1,5 +1,19 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.0 ---
+
+	** COMMON
+		- added FireStore
+		- added Auth and Google Auth
+		- added authorization and registration form
+	** STYLE
+		- 'copy' span dinamycally changed it color
+		- some footer icons changes 
+	** FIXED
+		- fixed the application crash after first launch
+		- fixed the clipboard watching proccess
+		- fixed the work liked list after authorization
+
 --- VER. 0.3.2 ---
 
 	** COMMON

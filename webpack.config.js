@@ -12,7 +12,7 @@ const { PROJECT_ROOT, SOURCE_DIRECTORY, BUILD_DIRECTORY} = require('./webpack-co
 const getOptimization = () => {
 	const config = {
 		splitChunks: {
-			chunks: 'all'
+			// chunks: 'all'
 		}
 	}
 
@@ -49,11 +49,14 @@ module.exports = () => {
 			static: true,
 			historyApiFallback: true,
 			port: 8081,
+			// hot: 'only',
 			open: true,
 			client: {
 		      overlay: true,
-		      // progress: true,
 			},
+		},
+		cache: {
+			type: 'filesystem'
 		},
 		devtool: 'source-map',
 		module: {
@@ -114,12 +117,13 @@ module.exports = () => {
 			extensions: ['', '.js', '.jsx'],
 			alias: {
 				'@': SOURCE_DIRECTORY,
+				'@assets': path.resolve(__dirname, './src/assets'),
+				'@consts': path.resolve(__dirname, './src/consts'),
+				'@hooks': path.resolve(__dirname, './src/hooks'),
 				'@components': path.resolve(__dirname, './src/components'),
+				'@store': path.resolve(__dirname, './src/store'),
 				'@styles': path.resolve(__dirname, './src/styles'),
 				'@utils': path.resolve(__dirname, './src/utils'),
-				'@hooks': path.resolve(__dirname, './src/hooks'),
-				'@store': path.resolve(__dirname, './src/store'),
-				'@assets': path.resolve(__dirname, './src/assets'),
 			}
 		},
 		optimization: getOptimization(),
