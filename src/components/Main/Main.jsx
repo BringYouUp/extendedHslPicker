@@ -4,12 +4,12 @@ import { useSelector } from "react-redux"
 
 import { Slider, Board } from '@components/index.js'
 
-export default function Main ({ currentUser, setCurrentUser, sliders , oneTimeChanged }) {
+export default function Main ({ addNewNotification, currentUser, setCurrentUser, sliders , oneTimeChanged }) {
 	const hsl = useSelector(state => state.hsl)
 	
 	return (
 		<div className='main'>
-			<Board />
+			<Board addNewNotification={addNewNotification} />
 			{
 				sliders.map(({ relatedValue, setRef, min, max}) => {
 					return (

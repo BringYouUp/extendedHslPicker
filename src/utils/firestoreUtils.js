@@ -27,7 +27,6 @@ export async function getCollectionFromFireStore(...path) {
 	let doc = await getDocFromFirestore(...path)
 
 	if (isDocExists(doc)) return extractDataFromDoc(doc)
-
 	await setDataIntoFireStore(INITIAL_FIRESTORE_STATE, ...path)
 	doc = await getDocFromFirestore(...path)
 	return extractDataFromDoc(doc)

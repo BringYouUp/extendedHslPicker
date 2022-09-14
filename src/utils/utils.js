@@ -1,5 +1,14 @@
 export const getRandomGeneratedNumber = (min, max) => Math.floor(Math.random() * (max - min) + min)
 
+export const getRandomGeneratedHSL = () => {
+	let newHSL = {
+		hue: getRandomGeneratedNumber(0, 361),
+		saturation: getRandomGeneratedNumber(25, 100),
+		lightness: getRandomGeneratedNumber(20, 100),
+	}
+	return newHSL
+}
+
 export function hslToRGB (h, s, l) {
 	s /= 100;
 	l /= 100;
@@ -35,10 +44,8 @@ export function getFormatted (HSL) {
 }
 
 export function toWriteTextIntoClipboard (textToCopy) {
-	navigator.clipboard
-		.writeText(textToCopy)
-		.then(() => {})
-		.catch(err => {})
+	return navigator.clipboard.writeText(textToCopy)
+
 }
 
 export async function toReadTextFromClipboard () {
@@ -195,4 +202,25 @@ export function updateBoardSpanColor (actualState) {
 		newFormattedColor.lightness = newFormattedColor.lightness + 20
 
 	return getFormattedHSL(newFormattedColor)
+}
+
+export function createNotification (message, type = 'message', onAgree) {
+	let newNotification = {
+		id: Date.now(),
+		message: message,
+		type: type,
+		onAgree: () => { onAgree() },
+	}
+	return newNotification
+}
+
+export function getRefValues (node, params) {
+	let returnedValues = []
+
+	for (let parameter of params) {
+		let appropriateValue = node.current[parameter]
+		returnedValues.push(appropriateValue)
+	}
+
+	return returnedValues
 }

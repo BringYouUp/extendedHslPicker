@@ -12,12 +12,17 @@ import { deleteDocFromFirebase } from '@utils/firestoreUtils.js'
 
 import { signOut, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
+import { Spinner } from '@components/index.js'
+
 const googleProvider = new GoogleAuthProvider();
 
 import { STARTED_COLLECTION } from '@/consts.js'
 
-export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened }) {
+export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, addNewNotification }) {
 	const hsl = useSelector(state => state.hsl)
+
+	const [isLoading, setIsLoading] = useState(false)
+	const [response , setResponce] = useState(null)
 
 	const [ isFormHasRegisterState, setFormState ] = useState(false)
 
@@ -28,52 +33,72 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened }) 
 	}
 
 	function authStateHasChanged (user) {
-		deleteDocFromFirebase(STARTED_COLLECTION, currentUser)
+		// deleteDocFromFirebase(STARTED_COLLECTION, currentUser)
 		setCurrentUser(user)
+		localStorage.setItem('currentUser', user)
 		setIsAuthOpened(false)
-	}
-
-	function signInUserWithEmailAndPassword (e) {
-		e.preventDefault()
-		let dataFromForm = getDataFromForm(formRef)
-		signInWithEmailAndPassword(auth, ...dataFromForm)
-			.then( userCredential => authStateHasChanged(userCredential.user.uid))
-			.catch( error => {
-				const errorCode = error.code
-				const errorMessage = error.message
-				alert(errorMessage)
-		})
 	}
 
 	function createNewUser (e) {
 		e.preventDefault()
+		setIsLoading(true)
 		let dataFromForm = getDataFromForm(formRef)
 		createUserWithEmailAndPassword(auth, ...dataFromForm)
-			.then(userCredential => authStateHasChanged(userCredential.user.uid))
+			.then(userCredential => {
+				authStateHasChanged(userCredential.user.uid)
+				addNewNotification('successfully create account')
+			})
 			.catch((error) => {
 				const errorCode = error.code
 				const errorMessage = error.message
-				alert(errorMessage)
-		})
+				addNewNotification(error.message, 'error')
+			})
+			.finally(() => {
+				setIsLoading(false)
+			})
+	}
+
+	function signInUserWithEmailAndPassword (e) {
+		e.preventDefault()
+		setIsLoading(true)
+		// let dataFromForm = ['temkakapli42@mail.ru', '111111']
+		let dataFromForm = getDataFromForm(formRef)
+		signInWithEmailAndPassword(auth, ...dataFromForm)
+			.then( userCredential => {
+				authStateHasChanged(userCredential.user.uid)
+				addNewNotification('successfully logged in')
+			})
+			.catch( error => {
+				const errorCode = error.code
+				const errorMessage = error.message
+				addNewNotification(error.message, 'error')
+			})
+			.finally(() => {
+				setIsLoading(false)
+			})
 	}
 
 	function signInViaGoogle (e) {
 		e.preventDefault()
+		setIsLoading(true)
 		signInWithPopup(auth, googleProvider)
 			.then((result) => {
 				const credential = GoogleAuthProvider.credentialFromResult(result)
 				const token = credential.accessToken
 				const user = result.user
-				// console.log(result)
-
 				authStateHasChanged(user.uid)
+				addNewNotification('successfully logged in via Google')
 			})
 			.catch((error) => {
 				const errorCode = error.code
 				const errorMessage = error.message
-				alert(errorMessage)
+				// alert(errorMessage)
 				const email = error.customData.email
 				const credential = GoogleAuthProvider.credentialFromError(error)
+				addNewNotification(error.message, 'error')
+			})
+			.finally(() => {
+				setIsLoading(false)
 			})
 	}
 
@@ -102,11 +127,18 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened }) 
 					<div className="inputPasswordWrapper">
 						<input name="password" type="password" /><label>password</label>
 					</div>
+
+					<div className="submitWrapper">
+						{
+							!isLoading
+							? <input
+								type="submit"
+								value={`${isFormHasRegisterState ? 'Create User' : 'Log In'}`}
+								onClick={(e) => { isFormHasRegisterState ? createNewUser(e) : signInUserWithEmailAndPassword(e) }} />
+							: <Spinner />
+						}
+					</div>
 					
-					<input
-						type="submit"
-						value={`${isFormHasRegisterState ? 'Create User' : 'Log In'}`}
-						onClick={(e) => { isFormHasRegisterState ? createNewUser(e) : signInUserWithEmailAndPassword(e) }} />
 					
 					<h3>Login via</h3>
 

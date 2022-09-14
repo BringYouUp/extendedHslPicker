@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 
-import { Main, Title, Options, Notification } from '@components/index.js'
+import { Main, Title, Options, Notifications } from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
 import { selectHSL } from './store/hslReducer/actions.js'
 
-import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
 
 import styles from './App.module.sass'
 
 import { STARTED_COLLECTION } from '@/consts.js'
 
-import { getStartedColor, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
 import { unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
+
+import { onAuthStateChanged  } from "firebase/auth";
 
 import { auth } from './../firebase-config.js'
 
@@ -37,20 +39,12 @@ const App = () => {
 
 	let hslSub
 
-	const [ notifications, setNotifications ] = useState([
-	// {
-	// 	id: 1662638384593,
-	// 	massage
-	// },
-	// {
-	// 	id: 1662638385953
-	// 	id: 1662638385954
+	const [ notifications, setNotifications ] = useState([])
 
-	// },
-	// {
-	// 	id: 1662638385954
-	// }
-	])
+	function addNewNotification(...args) {
+		let newNotification = createNotification(...args)
+		setNotifications(prev => [newNotification, ...prev])
+	}
 
 	function changeHSL () {
 		let
@@ -65,24 +59,28 @@ const App = () => {
 	function updateHslStateViaFirestore (actualDataFromFirestore) {
 		let { hue, saturation, lightness } = actualDataFromFirestore.hsl
 		dispatch(selectHSL({ hue, saturation, lightness }))
-	}
-	
-	function handlerDocumentKeypress (e) {
-		if (e.code === "Enter") {
-			e.preventDefault()
-			toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
-		}
+
+		setRefHue(hue)
+		setRefSaturation(saturation)
+		setRefLightness(lightness)
 	}
 
 	function oneTimeChanged (fn, value) {fn (prev => +prev + value) }
 
-	useEffect(() => {
-		console.log('currentUser', currentUser)
-		localStorage.setItem('currentUser', currentUser)
+	function checkForTheSameTextIn() {
+		let urlAddress = getUrlAddress()
+		toReadTextFromClipboard()
+			.then(data => {
+				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
+				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
+				return toReadTextFromClipboard()
+			})
+			.then(data => {
+				dispatch(copyClipboardTextToReducer(data))
+			})
+	}
 
-		if (auth.currentUser?.uid)
-			setCurrentUser(auth.currentUser.uid)
-
+	function synchronizeStateWithFirestore () {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
 			.then(collection => getDataFromFireStore(collection, 'hsl'))
 			.then(dataFromFireStore => {
@@ -90,16 +88,17 @@ const App = () => {
 				dispatch(selectHSL({ hue, saturation, lightness }))
 				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
 			})
+	}
+
+	useEffect(() => {
+		synchronizeStateWithFirestore()
+
+		return () =>{ typeof favoriteListSub === "function" && hslSub() }
 	}, [currentUser])
 
 	useEffect(() => {
-		let  {hue, saturation, lightness} = hsl
-
-		setRefHue (hue)
-		setRefSaturation (saturation)
-		setRefLightness (lightness)
-
 		dispatch(reformatFormats(hsl))
+		checkForTheSameTextIn()
 	}, [hsl])
 
 	useEffect(() => {
@@ -107,31 +106,23 @@ const App = () => {
 	}, [refHue, refSaturation, refLightness])
 	
 	window.onfocus = () => {
-		let urlAddress = getUrlAddress()
-		toReadTextFromClipboard()
-			.then(data => {
-				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
-				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
-			})
+		// checkForTheSameTextIn()
+	}
+
+	function accept () {
+		let stateFromStartedURL = getStartedColorFromAddressBar() 
+		dispatch(selectHSL(stateFromStartedURL))
 	}
 
 	useEffect(() => {
-		console.log(auth)
+		if (isAddressBarIncludeQuery()) {
+			// addNewNotification('Get Color from stColorColorColor Color ColorColorarted URL', 'action', accept)
+		}
 
-		document.addEventListener('keyup', handlerDocumentKeypress)
+		onAuthStateChanged(auth, user => { user && setCurrentUser(user.uid) });
+		synchronizeStateWithFirestore()
 
-		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
-			.then(collection => getDataFromFireStore(collection, 'hsl')
-			.then(dataFromFireStore => {
-				let { hue, saturation, lightness } = dataFromFireStore
-				dispatch(selectHSL({ hue, saturation, lightness }))
-				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
-			}))
-
-		return () => {
-			typeof hslSub === "function" && hslSub()
-			document.removeEventListener('keyup', handlerDocumentKeypress)
-		} 
+		return () => { typeof hslSub === "function" && hslSub() } 
 	}, [])
 
 	const slidersConfig = [
@@ -155,30 +146,30 @@ const App = () => {
 		},
 	]
 
+	function removeNotification(notificationID) {
+		let newNotificationList = notifications
+			.filter(notification => notification.id !== notificationID)
+		
+		setNotifications(newNotificationList)
+	}
+
 	return (
 		<div className="rootWrapper">
-			<div className="notifications">
-				{
-					notifications.map(notification => {
-						return (
-							<Notification
-								key={notification}
-							/>
-						)
-					})
-				}
-				
-			</div>
+			<Notifications
+				notifications={notifications}
+				removeNotification={removeNotification}
+			/>
 			<Title />
 			<Main
+				addNewNotification={addNewNotification}
 				currentUser={currentUser}
 				sliders={slidersConfig}
 				oneTimeChanged={oneTimeChanged}
 			/>
 			<Options
+				addNewNotification={addNewNotification}
 				currentUser={currentUser}
 				setCurrentUser={setCurrentUser}
-				setNotifications={setNotifications}
 			/>
 		</div>
 	)

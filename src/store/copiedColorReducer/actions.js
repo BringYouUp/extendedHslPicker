@@ -10,6 +10,7 @@ export function reformatFormats (actualHSL) {
 }
 
 export function copyClipboardTextToReducer (actualText) {
+	// console.log(actualText)
 	return {
 		type: TEXT_FROM_CLIPBOARD,
 		payload: actualText

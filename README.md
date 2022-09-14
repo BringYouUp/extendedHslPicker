@@ -1,5 +1,17 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.1 ---
+
+	** COMMON
+		- added component NOTIFICATION with next types: message, error
+		- added component SPINNER
+		- some code optimization related to application perfomance
+	** STYLE
+		- added styles for form
+	** FIXED
+		- fixed copying via central board
+		- some fixes related to switching between users
+
 --- VER. 0.4.0 ---
 
 	** COMMON

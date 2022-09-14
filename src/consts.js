@@ -3,7 +3,7 @@ import { getFormatted, getStartedColor } from '@utils/utils.js'
 export const INITIAL_HUE = 0
 export const INITIAL_SATURATION = 100
 export const INITIAL_LIGHTNESS = 50
-export const INITIAL_FORMAT_TO_COPY = 'hsl'
+export const INITIAL_FORMAT_TO_COPY = 'rgb'
 
 export const STARTED_COLLECTION = 'users'
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-import { Form } from '@components/index.js'
+import { Form, FavoriteColorList, Spinner} from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { toReadTextFromClipboard, updateUrlAdress, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard, getRandomGeneratedNumber } from '@utils/utils.js'
+import { getRandomGeneratedHSL, createNotification, toReadTextFromClipboard, updateUrlAdress, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard, getRandomGeneratedNumber } from '@utils/utils.js'
 
 import { selectHSL, getRandomColor } from '@store/hslReducer/actions.js'
 
@@ -20,24 +20,22 @@ import { app, db, auth } from '@/../firebase-config.js'
 
 import { signOut } from "firebase/auth";
 
-export default function Options ({ setNotifications, currentUser, setCurrentUser }) {
+function Options ({ addNewNotification, currentUser, setCurrentUser }) {
 	const dispatch = useDispatch()
 	
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
-	const [ isUniqueColor, setIsUniqueColor ] = useState(true)
+	const [ isUniqueColor, setIsUniqueColor ] = useState(false)
 	const [ isOpenedList, setIsOpenedList ] = useState(true)
 	const [ isMenuOpened, setIsMenuOpened ] = useState(true)
 	const [ isAuthOpened, setIsAuthOpened ] = useState(false)
-
+	const [ isLoading, setIsLoading ] = useState(false)
 	const [ favoriteColorsList, setFavoriteColorsList ] = useState([])
 
-	let favoriteListSub = null
-
 	function isUnique () {
-		let formattedNewColorHSLA = getFormattedHSL(hsl)
-		let isNewColorUnique = favoriteColorsList.every(item => getFormattedHSL(item) !== formattedNewColorHSLA)
+		let formattedNewColorHSL = getFormattedHSL(hsl)
+		let isNewColorUnique = favoriteColorsList.every(item => getFormattedHSL(item) !== formattedNewColorHSL)
 
 		return isNewColorUnique
 	}
@@ -46,11 +44,10 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 		if (!isUnique()) return
 
 		let { hue, saturation, lightness } = hsl
-		let newFavoriteList = [ { hue, saturation, lightness, id: Date.now() }, ...favoriteColorsList]
+		let newFavoriteList = [...favoriteColorsList, { hue, saturation, lightness, id: Date.now() }]
 
 		updateFirestore('favoriteColorsList', newFavoriteList, STARTED_COLLECTION, currentUser)
 		setDataIntoLocalStorage('favoriteColorsList', newFavoriteList)
-
 	}
 
 	function toRemoveFromFavorite () {
@@ -59,28 +56,27 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 	}
 
 	function toCopyUrlIntoClipboard () {
-		// let urlAddress = getUrlAddress()
+		toReadTextFromClipboard()
+			.then(data => {
+				let urlAddress = getUrlAddress()
+				if (data !==  urlAddress) {
+					addNewNotification('url address successfully copied')
+					dispatch(copyClipboardTextToReducer(urlAddress))
+					toWriteTextIntoClipboard(urlAddress)
+				}
+				else
+					addNewNotification('text is already in clipboard', 'error')
 
-		// toWriteTextIntoClipboard(urlAddress)
-		// dispatch(copyClipboardTextToReducer(urlAddress))
-
-		setNotifications(prev => [prev, 1])
-	}
-
-	function updateFavoriteColorsListViaFirestore (actualDataFromFirestore) {
-		setFavoriteColorsList(prev => actualDataFromFirestore?.favoriteColorsList || prev)
+			})
+			.catch(error => addNewNotification(error.message, 'error'))		
 	}
 
 	function getRandomColor () {
-		let newHSL = {
-			hue: getRandomGeneratedNumber(0, 361),
-			saturation: getRandomGeneratedNumber(25, 100),
-			lightness: getRandomGeneratedNumber(20, 100),
-		}
+		let generatedHSL = getRandomGeneratedHSL()
 
-		updateUrlAdress(newHSL)
-		dispatch(selectHSL(newHSL))
-		updateFirestore('hsl', newHSL, STARTED_COLLECTION, currentUser)
+		updateUrlAdress(generatedHSL)
+		dispatch(selectHSL(generatedHSL))
+		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
 	}
 
 	useEffect(() => {
@@ -91,50 +87,30 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
 				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
 			})
-	}, [copiedColorReducer.textFromClipboard, copiedColorReducer.hsl])
+	}, [copiedColorReducer.textFromClipboard, copiedColorReducer.hsl, hsl.defaultFormatToCopy])
 
-	useEffect(() => {
-		favoriteListSub = unsub(updateFavoriteColorsListViaFirestore, STARTED_COLLECTION, currentUser)
-	}, [currentUser])
-
-	useEffect(() => {
-		let urlAddress = getUrlAddress()
-		
-		dispatch(checkForTheSameUrlInClipboard(copiedColorReducer.textFromClipboard, urlAddress))
-	}, [ copiedColorReducer.hsl, copiedColorReducer.textFromClipboard, hsl.defaultFormatToCopy])
 
 	useEffect(() => {
 		setIsUniqueColor(isUnique())
 	}, [hsl, favoriteColorsList])
 
-	useEffect(() => {
-		setIsUniqueColor(isUnique())
-	}, [hsl, favoriteColorsList])
-
-	useEffect(() => {
-		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
-			.then(collection => getDataFromFireStore(collection, 'favoriteColorsList')
-			.then(dataFromFireStore => {
-				setFavoriteColorsList(dataFromFireStore)
-				favoriteListSub = unsub(updateFavoriteColorsListViaFirestore, STARTED_COLLECTION, currentUser)
-			}))
-
-		return () => {
-			typeof favoriteListSub === "function" && favoriteListSub()
-		}
-	}, [])
 
 	function signOutFromProfile () {
+		setIsLoading(true)
 		signOut(auth)
 			.then(() => {
 				localStorage.setItem('currentUser', Date.now())
 				setCurrentUser(localStorage.getItem('currentUser'))
+				addNewNotification('successfully logged out')
+
 			})
-			.catch((error) => { });
+			.catch((error) => {
+				addNewNotification(error.name, 'error')
+			})
+			.finally(() => {
+				setIsLoading(false)
+			})
 	}
-
-
-	// console.log(auth)
 
 	return (
 		<div className={`footer`}>
@@ -152,17 +128,19 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 			{
 				isMenuOpened &&
 				<>
-					<img
-						src={ auth.currentUser
-							? IMG_LOGOUT
-							: isAuthOpened ? IMG_USERED : IMG_USER }
-						alt="Auth"
-						onClick={() => { !auth.currentUser?.uid
-							? setIsAuthOpened(prev => !prev)
-							: signOutFromProfile() }}
-						title="Auth" />
-
-
+					{
+						!isLoading
+						? <img
+							src={ auth.currentUser
+								? IMG_LOGOUT
+								: isAuthOpened ? IMG_USERED : IMG_USER }
+							alt="Auth"
+							onClick={() => { !auth.currentUser?.uid
+								? setIsAuthOpened(prev => !prev)
+								: signOutFromProfile() }}
+							title="Auth" />
+						: <Spinner />
+					}
 					<img
 						src={ copiedColorReducer.isTheSameUrlInClipboard ? IMG_COPIED_URL : IMG_COPY_URL }
 						onClick={(() => { toCopyUrlIntoClipboard() })}
@@ -195,22 +173,12 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 						: 'rotate(-90deg)'}`					
 				}} />
 			
-			{ isOpenedList &&
-				<div className={`favoriteCellList`}>
-					{
-						favoriteColorsList.map(item => {
-							return (
-								<div
-									key={item.id}
-									className="favoriteCell"
-									style={{
-										backgroundColor: getFormattedHSL(item)
-									}}
-									onClick={() => dispatch(selectHSL(item))} /> 
-							)
-						})
-					}
-				</div>
+			{
+				isOpenedList && <FavoriteColorList
+					favoriteColorsList={favoriteColorsList}
+					setFavoriteColorsList={setFavoriteColorsList}
+					currentUser={currentUser}
+				/>
 			}
 
 			{
@@ -218,8 +186,26 @@ export default function Options ({ setNotifications, currentUser, setCurrentUser
 					currentUser={currentUser}
 					setCurrentUser={setCurrentUser}
 					setIsAuthOpened={setIsAuthOpened}
+					addNewNotification={addNewNotification}
 				/>
 			}
 		</div>
 	)
 }
+
+function isComponentNeedRerender (prevProps, nextProps) {
+	// console.log(nextProps)
+	// console.log(prevProps)
+	// console.log(prevProps.currentUser)
+	// console.log(nextProps.currentUser)
+	let isShouldComponentUpdate = null
+	// debugger
+	if (prevProps.currentUser == nextProps.currentUser)
+		isShouldComponentUpdate = false
+	else
+		isShouldComponentUpdate = true
+
+	return !isShouldComponentUpdate
+}
+
+export default React.memo(Options, isComponentNeedRerender)

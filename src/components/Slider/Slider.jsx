@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect} from "react";
 
-import { updateUrlAdress, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
+import { getRefValues, updateUrlAdress, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
@@ -25,17 +25,6 @@ export default function Slider ({ currentUser, oneTimeChanged, relatedValue, set
 		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
 		updateUrlAdress(hsl)
 		updateFirestore('hsl', hsl, startCollection, currentUser)
-	}
-
-	function getRefValues (node, params) {
-		let returnedValues = []
-
-		for (let parameter of params) {
-			let appropriateValue = node.current[parameter]
-			returnedValues.push(appropriateValue)
-		}
-
-		return returnedValues
 	}
 
 	function addBounceEffect (e) {
@@ -71,18 +60,18 @@ export default function Slider ({ currentUser, oneTimeChanged, relatedValue, set
 	}
 
 	function oneTimeChanged_ (e) {
-		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
-		let clickOffset = e.pageX
+		// let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
+		// let clickOffset = e.pageX
 
-		if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + sliderTrackWidth) return
+		// if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + sliderTrackWidth) return
 
-		let isClickOnTheLeft = clickOffset < startSliderTrack
-		if (hsl[relatedValue] <= min && isClickOnTheLeft) return
-		if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
-		if (isClickOnTheLeft)
-			oneTimeChanged(setRef, -1)
-		else
-			oneTimeChanged(setRef, 1)
+		// let isClickOnTheLeft = clickOffset < startSliderTrack
+		// if (hsl[relatedValue] <= min && isClickOnTheLeft) return
+		// if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
+		// if (isClickOnTheLeft)
+		// 	oneTimeChanged(setRef, -1)
+		// else
+		// 	oneTimeChanged(setRef, 1)
 	}
 
 	function toCheckForResetValue (e) {
@@ -139,4 +128,3 @@ export default function Slider ({ currentUser, oneTimeChanged, relatedValue, set
 		</div>
 	)
 }
-
