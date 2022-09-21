@@ -1,5 +1,12 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.2 ---
+
+	** COMMON
+		- added component NOTIFICATION with next type: action
+	** STYLE
+		- added skeleton animation
+
 --- VER. 0.4.1 ---
 
 	** COMMON

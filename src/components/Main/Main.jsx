@@ -4,16 +4,24 @@ import { useSelector } from "react-redux"
 
 import { Slider, Board } from '@components/index.js'
 
-export default function Main ({ addNewNotification, currentUser, setCurrentUser, sliders , oneTimeChanged }) {
+export default function Main ({ isLoading, addNewNotification, currentUser, setCurrentUser, sliders , oneTimeChanged }) {
 	const hsl = useSelector(state => state.hsl)
 	
 	return (
 		<div className='main'>
-			<Board addNewNotification={addNewNotification} />
+			<Board
+				isLoading={isLoading}
+				addNewNotification={addNewNotification}
+			/>
 			{
-				sliders.map(({ relatedValue, setRef, min, max}) => {
+				isLoading
+				? <>
+					{ Array(3).fill(<div className="skeleton" />).map(item => item) }
+				</>
+				: sliders.map(({ relatedValue, setRef, min, max}) => {
 					return (
 						<Slider
+							isLoading={isLoading}
 							currentUser={currentUser}
 							setCurrentUser={setCurrentUser}
 							key={relatedValue}
@@ -24,7 +32,7 @@ export default function Main ({ addNewNotification, currentUser, setCurrentUser,
 							max={max}
 						/>
 					)
-				})
+				})		
 			}
 		</div>
 	)

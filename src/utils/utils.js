@@ -53,16 +53,6 @@ export async function toReadTextFromClipboard () {
 }
 
 
-export function addListeners (element = document, listeners) {
-	for (let listener in listeners)
-		element.addEventListener(listener, listeners[listener])
-}
-
-export function removeListeners (element = document, listeners) {
-	for (let listener in listeners)
-		element.removeEventListener(listener, listeners[listener])
-}
-
 export function addStyleProperties (element, properties) {
 	for (let property in properties)
 		element.style[property] = properties[property]
@@ -166,12 +156,12 @@ export function setDataIntoLocalStorage (key, data) {
 }
 
 export function getDataFromLocalStorage (key) {
+	
 	return JSON.parse(localStorage.getItem(key))
 }
 
 export function getGetQuery(actualState) {
 	return Object.keys(actualState).map((item, index) => {
-
 		if (item === 'defaultFormatToCopy')
 			return ''
 
@@ -180,7 +170,6 @@ export function getGetQuery(actualState) {
 
 		else
 			return `${item}=${actualState[item]}`
-		
 	})
 	.join('')
 }
@@ -209,7 +198,7 @@ export function createNotification (message, type = 'message', onAgree) {
 		id: Date.now(),
 		message: message,
 		type: type,
-		onAgree: () => { onAgree() },
+		onAgree,
 	}
 	return newNotification
 }

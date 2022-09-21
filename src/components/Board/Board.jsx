@@ -6,7 +6,7 @@ import { copyClipboardTextToReducer, checkForTheSameTextInClipboard, checkForThe
 
 import { getUrlAddress, createNotification, updateBoardSpanColor, toWriteTextIntoClipboard, toReadTextFromClipboard } from '@utils/utils.js'
 
-function Board ({ addNewNotification }) {
+function Board ({ isLoading, addNewNotification }) {
 	const dispatch = useDispatch()
 
 	const hsl = useSelector(state => state.hsl)
@@ -26,7 +26,7 @@ function Board ({ addNewNotification }) {
 					{copiedColorReducer.isTheSameTextInClipboard ? 'Copied' : 'Copy'}
 			</span>
 		</div>
-	, [hsl.defaultFormatToCopy, copiedColorReducer])
+	, [hsl, copiedColorReducer])
 
 	function updateClipboard () {
 		toReadTextFromClipboard()
@@ -45,7 +45,7 @@ function Board ({ addNewNotification }) {
 			.then(data => dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy])))
 	}
 
-	return renderBoard
+	return isLoading ? <div className="skeleton"></div> : renderBoard
 }
 
 export default React.memo(Board)

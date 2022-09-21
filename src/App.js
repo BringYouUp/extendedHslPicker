@@ -4,7 +4,7 @@ import { Main, Title, Options, Notifications } from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { selectHSL } from './store/hslReducer/actions.js'
+import { selectHSL } from '@store/hslReducer/actions.js'
 
 import { copyClipboardTextToReducer, reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
 
@@ -12,7 +12,7 @@ import styles from './App.module.sass'
 
 import { STARTED_COLLECTION } from '@/consts.js'
 
-import { createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { getDataFromLocalStorage, createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
 import { unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
 
@@ -30,16 +30,17 @@ const App = () => {
 	const [ refLightness, setRefLightness ] = useState(hsl.lightness) 
 
 	const [ currentUser, setCurrentUser ] = useState(() => {
-		let currentUser = localStorage.getItem('currentUser')
+		let currentUser = String(getDataFromLocalStorage('currentUser'))
 		if (currentUser) return currentUser
 
-		localStorage.setItem('currentUser', Date.now())
-		return localStorage.getItem('currentUser')
+		setDataIntoLocalStorage('currentUser', Date.now())
+		return String(getDataFromLocalStorage('currentUser'))
 	}) 
 
 	let hslSub
 
 	const [ notifications, setNotifications ] = useState([])
+	const [ isLoading, updateLoadingState ] = useState(true)
 
 	function addNewNotification(...args) {
 		let newNotification = createNotification(...args)
@@ -53,10 +54,10 @@ const App = () => {
 			lightness = refLightness
 
 		dispatch(selectHSL({ hue, saturation, lightness }))
-		setDataIntoLocalStorage('hsl', { hue, saturation, lightness, defaultFormatToCopy: hsl.defaultFormatToCopy })
 	}
 
 	function updateHslStateViaFirestore (actualDataFromFirestore) {
+		console.log(actualDataFromFirestore)
 		let { hue, saturation, lightness } = actualDataFromFirestore.hsl
 		dispatch(selectHSL({ hue, saturation, lightness }))
 
@@ -88,15 +89,24 @@ const App = () => {
 				dispatch(selectHSL({ hue, saturation, lightness }))
 				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
 			})
+			.finally(() => {
+				updateLoadingState(false)
+			})
 	}
 
 	useEffect(() => {
+		setDataIntoLocalStorage('currentUser', currentUser)
 		synchronizeStateWithFirestore()
 
-		return () =>{ typeof favoriteListSub === "function" && hslSub() }
+		return () => {
+			if (typeof hslSub === "function") {
+				hslSub()
+			}
+		}
 	}, [currentUser])
 
 	useEffect(() => {
+		setDataIntoLocalStorage('hsl', hsl)
 		dispatch(reformatFormats(hsl))
 		checkForTheSameTextIn()
 	}, [hsl])
@@ -109,20 +119,27 @@ const App = () => {
 		// checkForTheSameTextIn()
 	}
 
-	function accept () {
+	function getColorFromSharedURL () {
 		let stateFromStartedURL = getStartedColorFromAddressBar() 
 		dispatch(selectHSL(stateFromStartedURL))
 	}
 
 	useEffect(() => {
 		if (isAddressBarIncludeQuery()) {
-			// addNewNotification('Get Color from stColorColorColor Color ColorColorarted URL', 'action', accept)
+			// addNewNotification('Get Color from shared URL', 'action', getColorFromSharedURL)
 		}
 
-		onAuthStateChanged(auth, user => { user && setCurrentUser(user.uid) });
-		synchronizeStateWithFirestore()
+		onAuthStateChanged(auth, user => {
+			if (user) {
+				setCurrentUser(user.uid)
+			}
+		})
 
-		return () => { typeof hslSub === "function" && hslSub() } 
+		return () => {
+			if (typeof hslSub === "function") {
+				hslSub()
+			}
+		} 
 	}, [])
 
 	const slidersConfig = [
@@ -156,17 +173,23 @@ const App = () => {
 	return (
 		<div className="rootWrapper">
 			<Notifications
+				isLoading={isLoading}
 				notifications={notifications}
 				removeNotification={removeNotification}
 			/>
-			<Title />
+			<Title
+				isLoading={isLoading}
+			/>
 			<Main
+				isLoading={isLoading}
 				addNewNotification={addNewNotification}
 				currentUser={currentUser}
 				sliders={slidersConfig}
 				oneTimeChanged={oneTimeChanged}
 			/>
 			<Options
+				isLoading={isLoading}
+				updateLoadingState={updateLoadingState}
 				addNewNotification={addNewNotification}
 				currentUser={currentUser}
 				setCurrentUser={setCurrentUser}

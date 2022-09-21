@@ -43,10 +43,6 @@ export function updateFirestore(key, actualData, ...path) {
 	})
 }
 
-export async function deleteDocFromFirebase (...path) {
-	deleteDoc(doc(db, ...path))
-}
-
 export function unsub (setFunc, ...args) {
 	return onSnapshot(doc(db, ...args), doc => setFunc(doc.data()))
 }

@@ -20,17 +20,17 @@ import { app, db, auth } from '@/../firebase-config.js'
 
 import { signOut } from "firebase/auth";
 
-function Options ({ addNewNotification, currentUser, setCurrentUser }) {
+function Options ({ isLoading, updateLoadingState, addNewNotification, currentUser, setCurrentUser }) {
 	const dispatch = useDispatch()
 	
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
 	const [ isUniqueColor, setIsUniqueColor ] = useState(false)
-	const [ isOpenedList, setIsOpenedList ] = useState(true)
 	const [ isMenuOpened, setIsMenuOpened ] = useState(true)
+	const [ isOpenedList, setIsOpenedList ] = useState(false)
 	const [ isAuthOpened, setIsAuthOpened ] = useState(false)
-	const [ isLoading, setIsLoading ] = useState(false)
+	const [ isSpinnerLoading, setIsSpinnerLoading ] = useState(false)
 	const [ favoriteColorsList, setFavoriteColorsList ] = useState([])
 
 	function isUnique () {
@@ -47,7 +47,6 @@ function Options ({ addNewNotification, currentUser, setCurrentUser }) {
 		let newFavoriteList = [...favoriteColorsList, { hue, saturation, lightness, id: Date.now() }]
 
 		updateFirestore('favoriteColorsList', newFavoriteList, STARTED_COLLECTION, currentUser)
-		setDataIntoLocalStorage('favoriteColorsList', newFavoriteList)
 	}
 
 	function toRemoveFromFavorite () {
@@ -89,104 +88,119 @@ function Options ({ addNewNotification, currentUser, setCurrentUser }) {
 			})
 	}, [copiedColorReducer.textFromClipboard, copiedColorReducer.hsl, hsl.defaultFormatToCopy])
 
-
 	useEffect(() => {
 		setIsUniqueColor(isUnique())
 	}, [hsl, favoriteColorsList])
 
+	useEffect(() => {
+		setDataIntoLocalStorage('favoriteColorsList', favoriteColorsList)
+	}, [favoriteColorsList])
+
 
 	function signOutFromProfile () {
-		setIsLoading(true)
+		setIsSpinnerLoading(true)
+		
 		signOut(auth)
 			.then(() => {
 				localStorage.setItem('currentUser', Date.now())
 				setCurrentUser(localStorage.getItem('currentUser'))
 				addNewNotification('successfully logged out')
-
+				updateLoadingState(true)
 			})
 			.catch((error) => {
 				addNewNotification(error.name, 'error')
 			})
 			.finally(() => {
-				setIsLoading(false)
+				setIsSpinnerLoading(false)
 			})
 	}
 
 	return (
 		<div className={`footer`}>
 			{
-				!isMobileDevice() &&
-				<img
-					src={IMG_MENU}
-					onClick={() => { setIsMenuOpened(prev => !prev) }}
-					alt="Menu" 
-					style={{
-						'transform': `${isMenuOpened ? 'rotate(90deg)' : 'rotate(0deg)'}`
-					}}/>
-			}
-
-			{
-				isMenuOpened &&
-				<>
+				isLoading
+				?  <>
+						{ Array(6).fill(<div className="skeleton" />).map(item => item) }
+					</>
+				: <>
 					{
-						!isLoading
-						? <img
-							src={ auth.currentUser
-								? IMG_LOGOUT
-								: isAuthOpened ? IMG_USERED : IMG_USER }
-							alt="Auth"
-							onClick={() => { !auth.currentUser?.uid
-								? setIsAuthOpened(prev => !prev)
-								: signOutFromProfile() }}
-							title="Auth" />
-						: <Spinner />
+						!isMobileDevice() &&
+						<img
+							src={IMG_MENU}
+							onClick={() => { setIsMenuOpened(prev => !prev) }}
+							alt="Menu" 
+							style={{
+								'transform': `${isMenuOpened ? 'rotate(90deg)' : 'rotate(0deg)'}`
+							}}/>
 					}
-					<img
-						src={ copiedColorReducer.isTheSameUrlInClipboard ? IMG_COPIED_URL : IMG_COPY_URL }
-						onClick={(() => { toCopyUrlIntoClipboard() })}
-						alt="Copy URL"
-						title="Copy URL" />
+
+					{
+						isMenuOpened &&
+						<>
+							{
+								!isSpinnerLoading
+								? <img
+									src={ auth.currentUser
+										? IMG_LOGOUT
+										: isAuthOpened ? IMG_USERED : IMG_USER }
+									alt="Auth"
+									onClick={() => { !auth.currentUser?.uid
+										? setIsAuthOpened(prev => !prev)
+										: signOutFromProfile() }}
+									title="Auth" />
+								: <Spinner />
+							}
+							<img
+								src={ copiedColorReducer.isTheSameUrlInClipboard ? IMG_COPIED_URL : IMG_COPY_URL }
+								onClick={(() => { toCopyUrlIntoClipboard() })}
+								alt="Copy URL"
+								title="Copy URL" />
+
+							<img
+								onClick={() => getRandomColor()}
+								data-name="random"
+								src={IMG_RANDOM}
+								alt="Get random Color"
+								title="Get random Color" />
+
+							<img
+								onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}}
+								src={isUniqueColor ? IMG_ADD : IMG_ADDED}
+								alt="Add to Favorite"
+								title="Add to Favorite" />
+						</>
+					}
 
 					<img
-						onClick={() => getRandomColor()}
-						data-name="random"
-						src={IMG_RANDOM}
-						alt="Get random Color"
-						title="Get random Color" />
+						onClick={() => { setIsOpenedList(prev => !prev)}}
+						src={ IMG_LIST }
+						alt="Show / Hide Favorite List"			
+						title="title / Hide Favorite List"
+						style={{
+							'transform': `${isOpenedList
+								? 'rotate(0deg)'
+								: 'rotate(-90deg)'}`					
+						}} />
+					
+					{
+						isOpenedList && <FavoriteColorList
+							favoriteColorsList={favoriteColorsList}
+							setFavoriteColorsList={setFavoriteColorsList}
+							currentUser={currentUser}
+						/>
+					}
 
-					<img
-						onClick={() => {isUniqueColor ? toAddToFavorite() : toRemoveFromFavorite()}}
-						src={isUniqueColor ? IMG_ADD : IMG_ADDED}
-						alt="Add to Favorite"
-						title="Add to Favorite" />
+
 				</>
 			}
-
-			<img
-				onClick={() => { setIsOpenedList(prev => !prev)}}
-				src={ IMG_LIST }
-				alt="Show / Hide Favorite List"			
-				title="title / Hide Favorite List"
-				style={{
-					'transform': `${isOpenedList
-						? 'rotate(0deg)'
-						: 'rotate(-90deg)'}`					
-				}} />
-			
-			{
-				isOpenedList && <FavoriteColorList
-					favoriteColorsList={favoriteColorsList}
-					setFavoriteColorsList={setFavoriteColorsList}
-					currentUser={currentUser}
-				/>
-			}
-
 			{
 				isAuthOpened && <Form
 					currentUser={currentUser}
+					updateLoadingState={updateLoadingState}
 					setCurrentUser={setCurrentUser}
 					setIsAuthOpened={setIsAuthOpened}
 					addNewNotification={addNewNotification}
+					setFavoriteColorsList={setFavoriteColorsList}
 				/>
 			}
 		</div>
@@ -194,15 +208,10 @@ function Options ({ addNewNotification, currentUser, setCurrentUser }) {
 }
 
 function isComponentNeedRerender (prevProps, nextProps) {
-	// console.log(nextProps)
-	// console.log(prevProps)
-	// console.log(prevProps.currentUser)
-	// console.log(nextProps.currentUser)
-	let isShouldComponentUpdate = null
-	// debugger
-	if (prevProps.currentUser == nextProps.currentUser)
+	let isShouldComponentUpdate = true
+	if (prevProps.currentUser === nextProps.currentUser)
 		isShouldComponentUpdate = false
-	else
+	if (prevProps.isLoading !== nextProps.isLoading)
 		isShouldComponentUpdate = true
 
 	return !isShouldComponentUpdate

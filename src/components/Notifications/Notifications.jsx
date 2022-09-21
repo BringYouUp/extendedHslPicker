@@ -3,9 +3,6 @@ import React from "react";
 import { Notification } from '@components/index.js'
 
 function Notifications ({ notifications, removeNotification }) {
-
-	// console.log('______rerender notification')
-
 	return (
 		<div className="notifications">
 			{
@@ -18,7 +15,6 @@ function Notifications ({ notifications, removeNotification }) {
 							removeNotification={removeNotification}
 							type={notification.type}
 							onAgree={notification.onAgree}
-							onDisagree={notification.onDisagree}
 						/>
 					)
 				})

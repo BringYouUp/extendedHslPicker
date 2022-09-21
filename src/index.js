@@ -25,6 +25,7 @@ root.render(
   	</React.StrictMode>
 );
 
+
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 // if (isDevelopment && module && module.hot)

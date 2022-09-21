@@ -6,7 +6,7 @@ import { getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
 import { MAIN_FORMATS } from '@/consts.js'
 
-const Title = () => {
+const Title = ({ isLoading }) => {
 	const dispatch = useDispatch()
 	
 	const hsl = useSelector(state => state.hsl)
@@ -25,9 +25,18 @@ const Title = () => {
 			</h2>)
 	, [hsl.defaultFormatToCopy, copiedColorReducer.hsl])
 
+	const renderSkeletonTitles = () => <>
+				<div className="skeleton"> </div>
+				<div className="skeleton"> </div>
+				<div className="skeleton"> </div>
+			</>
+
+
 	return (
 		<div className='title'>
-			{	renderTitles }
+			{	isLoading
+				? renderSkeletonTitles()
+				: renderTitles }
 		</div>
 	)
 }

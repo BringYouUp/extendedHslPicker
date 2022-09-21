@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef, useCallback} from "react";
 
 import { useDispatch, useSelector } from "react-redux"
 
+import { selectHSL } from '@store/hslReducer/actions.js'
 import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
 import { IMG_USERED, IMG_LOGIN_VIA_EMAIL, IMG_LOGIN_VIA_GOOGLE, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
 
 import { app, db, auth } from '@/../firebase-config.js'
 
-import { deleteDocFromFirebase } from '@utils/firestoreUtils.js'
+import { getDataFromLocalStorage } from '@utils/utils.js'
 
 import { signOut, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -18,8 +19,11 @@ const googleProvider = new GoogleAuthProvider();
 
 import { STARTED_COLLECTION } from '@/consts.js'
 
-export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, addNewNotification }) {
+import { getCollectionFromFireStore, getDataFromFireStore, updateFirestore, unsub } from '@utils/firestoreUtils.js'
+
+export default function Form ({ updateLoadingState, setFavoriteColorsList, currentUser, setCurrentUser, setIsAuthOpened, addNewNotification }) {
 	const hsl = useSelector(state => state.hsl)
+	const dispatch = useDispatch()
 
 	const [isLoading, setIsLoading] = useState(false)
 	const [response , setResponce] = useState(null)
@@ -33,9 +37,6 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, ad
 	}
 
 	function authStateHasChanged (user) {
-		// deleteDocFromFirebase(STARTED_COLLECTION, currentUser)
-		setCurrentUser(user)
-		localStorage.setItem('currentUser', user)
 		setIsAuthOpened(false)
 	}
 
@@ -47,6 +48,7 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, ad
 			.then(userCredential => {
 				authStateHasChanged(userCredential.user.uid)
 				addNewNotification('successfully create account')
+				updateLoadingState(true)
 			})
 			.catch((error) => {
 				const errorCode = error.code
@@ -58,15 +60,26 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, ad
 			})
 	}
 
+	function toCopyDataFromGuestMode (currentUser, hsl, likedList) {
+		updateFirestore('hsl', hsl, STARTED_COLLECTION, currentUser)
+		updateFirestore('favoriteColorsList', likedList, STARTED_COLLECTION, currentUser)
+	}
+
 	function signInUserWithEmailAndPassword (e) {
 		e.preventDefault()
 		setIsLoading(true)
+		
 		// let dataFromForm = ['temkakapli42@mail.ru', '111111']
 		let dataFromForm = getDataFromForm(formRef)
+		let colorGuestMode = getDataFromLocalStorage('hsl')
+		let likedListGuestMode = getDataFromLocalStorage('favoriteColorsList')
+
 		signInWithEmailAndPassword(auth, ...dataFromForm)
 			.then( userCredential => {
 				authStateHasChanged(userCredential.user.uid)
 				addNewNotification('successfully logged in')
+				// addNewNotification('would you like to copy the data from guest mode?', 'action', () => { toCopyDataFromGuestMode(userCredential.user.uid, colorGuestMode, likedListGuestMode) })
+				updateLoadingState(true)
 			})
 			.catch( error => {
 				const errorCode = error.code
@@ -87,6 +100,7 @@ export default function Form ({ currentUser, setCurrentUser, setIsAuthOpened, ad
 				const token = credential.accessToken
 				const user = result.user
 				authStateHasChanged(user.uid)
+				deleteDocFromFirebase(STARTED_COLLECTION, currentUser)
 				addNewNotification('successfully logged in via Google')
 			})
 			.catch((error) => {

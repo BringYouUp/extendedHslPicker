@@ -32,13 +32,21 @@ function FavoriteColorList ({ favoriteColorsList, currentUser, setFavoriteColors
 	React.useEffect(() => {
 		initializeFavoriteColorList()
 
-		return () => { typeof favoriteListSub === "function" && favoriteListSub() }
+		return () => { 
+			if (typeof favoriteListSub === "function") {
+				favoriteListSub()
+			}
+		}
 	}, [currentUser])
 
 	React.useEffect(() => {
 		initializeFavoriteColorList()
 
-		return () => { typeof favoriteListSub === "function" && favoriteListSub() }
+		return () => { 
+			if (typeof favoriteListSub === "function") {
+				favoriteListSub()
+			}
+		}
 	}, [])
 
 	return (

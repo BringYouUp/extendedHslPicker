@@ -3,7 +3,6 @@ import React from "react";
 import { IMG_DOT } from '@/resources.js'
 
 const Spinner = () => {
-	
 	return (
 		<div className='spinner'>
 			<img src={IMG_DOT} alt="" />
