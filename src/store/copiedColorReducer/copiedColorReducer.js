@@ -1,6 +1,6 @@
 import { REFORMAT_FORMATS, TEXT_FROM_CLIPBOARD, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLIPBOARD } from './types.js'
 
-import { INITIAL_COPIED_COLOR_REDUCER } from '@/consts.js'
+import { INITIAL_COPIED_COLOR_REDUCER } from '@consts/consts.js'
 
 import { getRandomGeneratedNumber } from '@utils/utils.js'
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { STARTED_COLLECTION } from '@/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
 import { useDispatch } from "react-redux"
 

@@ -1,4 +1,4 @@
-import { STARTED_HSL_REDUCER, INITIAL_HSL_REDUCER} from '@/consts.js'
+import { STARTED_HSL_REDUCER, INITIAL_HSL_REDUCER} from '@consts/consts.js'
 
 import { SELECT_HSL, STARTED_HSL, RESET_VALUE_OF_HSL, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
 

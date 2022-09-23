@@ -1,5 +1,19 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.3 ---
+
+	** COMMON
+		- added handlers for 'Space' and 'Enter' pressing
+		- added handler for precise adjustment color by clicking on the right or left of the slider 
+	** STYLE
+		- updated skeleton styles (colors and duration)
+		- added favicon
+		- restyled title fomt-size
+	** FIXED
+		- all operation with clipboard hanle only if document.hasFocus()
+	** MINOR
+		- rethinking project folders structure and some files
+
 --- VER. 0.4.2 ---
 
 	** COMMON

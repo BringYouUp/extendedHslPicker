@@ -4,15 +4,15 @@ import { Form, FavoriteColorList, Spinner} from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { getRandomGeneratedHSL, createNotification, toReadTextFromClipboard, updateUrlAdress, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard, getRandomGeneratedNumber } from '@utils/utils.js'
+import { getRandomGeneratedHSL, createNotification, toReadTextFromClipboard, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard, getRandomGeneratedNumber } from '@utils/utils.js'
 
 import { selectHSL, getRandomColor } from '@store/hslReducer/actions.js'
 
 import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { STARTED_COLLECTION } from '@/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
-import { IMG_USERED, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
+import { IMG_USERED, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@consts/resources.js'
 
 import { getCollectionFromFireStore, getDataFromFireStore, updateFirestore, unsub } from '@utils/firestoreUtils.js'
 
@@ -71,17 +71,15 @@ function Options ({ isLoading, updateLoadingState, addNewNotification, currentUs
 	}
 
 	function getRandomColor () {
-		let generatedHSL = getRandomGeneratedHSL()
+		let generatedHSL = { ...getRandomGeneratedHSL(), defaultFormatToCopy: hsl.defaultFormatToCopy }
 
-		updateUrlAdress(generatedHSL)
-		dispatch(selectHSL(generatedHSL))
 		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
 	}
 
 	useEffect(() => {
 		let urlAddress = getUrlAddress()
 
-		toReadTextFromClipboard()
+		document.hasFocus() && toReadTextFromClipboard()
 			.then(data => {
 				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
 				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
@@ -120,7 +118,12 @@ function Options ({ isLoading, updateLoadingState, addNewNotification, currentUs
 			{
 				isLoading
 				?  <>
-						{ Array(6).fill(<div className="skeleton" />).map(item => item) }
+						<div className="skeleton" />
+						<div className="skeleton" />
+						<div className="skeleton" />
+						<div className="skeleton" />
+						<div className="skeleton" />
+						<div className="skeleton" />
 					</>
 				: <>
 					{

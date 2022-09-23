@@ -9,3 +9,21 @@ $cell-border-radius: calc(#{$cell-size} / 5)
 
 $slider-width: 45vmin
 $slider-height: 0.25rem
+
+@mixin flex
+	display: flex
+	justify-content: center
+	align-items: center
+
+@mixin flexReverse
+	display: flex
+	justify-content: center
+	align-items: center
+	flex-direction: column
+
+@mixin hoveredAndActivated
+	&:hover
+		transform: translate(0, -.5rem)
+	&:active
+		transform: translate(0, -.25rem)
+

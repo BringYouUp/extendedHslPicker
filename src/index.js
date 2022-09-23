@@ -18,15 +18,9 @@ const store = createStore(rootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && wi
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  	<React.StrictMode>
-	  	<Provider store={store}>
-			<App />
-	  	</Provider>
-  	</React.StrictMode>
+  	<Provider store={store}>
+		<App />
+  	</Provider>
 );
 
-
 const isDevelopment = process.env.NODE_ENV === 'development'
-
-// if (isDevelopment && module && module.hot)
-// 	module.hot.accept()

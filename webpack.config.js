@@ -104,6 +104,7 @@ module.exports = () => {
 			new HtmlWebpackPlugin({
 				template: path.join(__dirname, 'index.html'),
 				title: 'hslPicker',
+				favicon: "src/assets/images/random.png",
 				minify: {
 					collapseWhitespace: !isDevelopment ? true : false,
 				}

@@ -44,6 +44,7 @@ export function getFormatted (HSL) {
 }
 
 export function toWriteTextIntoClipboard (textToCopy) {
+	console.log(textToCopy)
 	return navigator.clipboard.writeText(textToCopy)
 
 }
@@ -161,16 +162,11 @@ export function getDataFromLocalStorage (key) {
 }
 
 export function getGetQuery(actualState) {
-	return Object.keys(actualState).map((item, index) => {
-		if (item === 'defaultFormatToCopy')
-			return ''
-
-		if (index > 0)
-			return `&&${item}=${actualState[item]}`
-
-		else
-			return `${item}=${actualState[item]}`
-	})
+	return Object.keys(actualState).map((item, index) =>
+		index > 0
+			? `&&${item}=${actualState[item]}`
+			: `${item}=${actualState[item]}`
+	)
 	.join('')
 }
 
@@ -185,10 +181,9 @@ export function updateUrlAdress (actualState) {
 export function updateBoardSpanColor (actualState) {
 	let newFormattedColor = {...actualState} 
 
-	if (Number(newFormattedColor.lightness) > 10)
-		newFormattedColor.lightness = newFormattedColor.lightness - 10
-	else
-		newFormattedColor.lightness = newFormattedColor.lightness + 20
+	newFormattedColor.lightness = Number(newFormattedColor.lightness) > 10
+		? newFormattedColor.lightness - 10
+		: newFormattedColor.lightness + 20
 
 	return getFormattedHSL(newFormattedColor)
 }

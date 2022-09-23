@@ -1,6 +1,6 @@
 import React from "react";
 
-import { IMG_DOT } from '@/resources.js'
+import { IMG_DOT } from '@consts/resources.js'
 
 const Spinner = () => {
 	return (

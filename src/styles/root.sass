@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap')
+@import url('https://fonts.googleapis.com/css2?family=Oswald&display=none')
 @import '@styles/template'
 
 *, *:before, *:after
@@ -11,83 +11,69 @@
 	user-select: none
 	-webkit-tap-highlight-color: transparent
 	transition: .15s
-
-input
-	outline: none
-
-h2
-	text-align: center
-
-ul
-	padding: 0
-	list-style-type: none
+	text-transform: uppercase
 
 body
 	width: 100vw
 	height: 100vh
 	background: white
-	font-size: calc(1vmin + .33em)
-	color: rgba(0, 0, 0, 0.6)
-
-body > div
-	width: 100%
-	height: 100%
-	display: grid
-	place-items: center
+	color: hsl(0, 0%, 40%)
+	& > div
+		width: inherit
+		height: 100%
+		display: grid
+		place-items: center
+img
+	width: 2rem
+	height: 2rem
+input
+	outline: none
+h1, h2, h3, h4, h5, h6
+	text-align: center
+ul
+	padding: 0
+	list-style-type: none
 
 .skeleton
 	border-radius: .5rem
-	animation: pulse 1s ease-in infinite alternate
+	animation: pulse .75s ease-in infinite alternate
 
 @keyframes pulse
 	0%
-		background-color: hsl(200, 5%, 75%)
+		background-color: hsl(200, 5%, 82%)
 	100%
-		background-color: hsl(200, 5%, 95%)
+		background-color: hsl(200, 5%, 97%)
 
 .rootWrapper
+	@include flexReverse
 	width: 100%
-	max-width: 720px
 	height: 100%
+	max-width: 720px
 	transition: .5s
-	display: flex
-	flex-direction: column
-	align-items: center
-	justify-content: center
-
 .title
+	@include flex
 	width: 100%
-	display: flex
-	align-items: center
-	justify-content: center
 	height: 4rem
 	& > *
 		margin: 1rem .5rem
 		border-radius: .5rem
 		display: inline-table
 		height: 2rem
-		width: 100%
+		width: inherit
 		flex: 1 1 0
 	h2
 		cursor: pointer
-		font-size: 1.25rem
-		&:hover
-			transform: translate(0, -.5rem)
-			color: rgba(0, 0, 0, 0.8)
-		&:active
-			transform: translate(0, -.25rem)
-	
+		font-size: .8rem
+		font-size: calc(1vmin + .7em)
 
-
+		@include hoveredAndActivated
 
 .spinner
+	@include flex
 	height: 100%
 	width: 100%
-	display: flex
-	justify-content: center
-	align-items: center
 	img
-		height: 2rem
+		width: auto
 		transform: translate(0, -.33rem)
 		animation: loadingData 1s ease-in-out infinite
 		&:nth-child(2)
@@ -105,10 +91,7 @@ body > div
 
 .main
 	flex: 1 1 auto
-	display: flex
-	flex-direction: column
-	justify-content: center
-	align-items: center
+	@include flexReverse
 	& > div.skeleton
 		height: 1rem
 		width: 45vmin
@@ -122,31 +105,23 @@ body > div
 		display: grid
 		margin-bottom: 1.5rem
 		place-items: center
-	// & > div.skeleton:nth-child(1)
 
 .board
-	&:hover
-		transform: translate(0, -.5rem)
-	&:active
-		transform: translate(0, -.25rem)
+	@include hoveredAndActivated
 	&:hover span
 		opacity: 1
 	& > span
 		display: block
-		text-transform: uppercase
 		opacity: .8
 		font-size: calc(1vmin + 1rem)
 .sliderWrapper
-	display: flex
-	justify-content: center
-	align-items: center
+	@include flex
 	height: 4rem
 	width: 100%
 .sliderWrapperInner
 	height: $slider-height
 	width: $slider-width
 	border-radius: calc(#{$slider-height} / 2)
-
 .sliderTrack
 	position: relative
 	z-index: 2
@@ -200,11 +175,9 @@ body > div
 		height: 2rem
 	& > img
 		filter: opacity(.75)
+		@include hoveredAndActivated
 		&:hover
-			transform: translate(0, -.5rem)
 			filter: opacity(.85)
-		&:active
-			transform: translate(0, -.25rem)
 	[data-name="random"]:active
 		animation: shakingCube .1s ease
 
@@ -223,7 +196,7 @@ body > div
 
 	.favoriteCell
 		border-radius: .5rem
-		border: 0.1rem solid rgba(0, 0, 0, .1)
+		border: 0.1rem solid hsl(0, 0%, 90%)
 		min-height: 2rem
 		min-width: 2rem
 		margin-bottom: 0.5rem
@@ -231,12 +204,18 @@ body > div
 		&:hover
 			transform: translate(-.5rem, 0)
 
+@keyframes shakingCube
+	0%
+		transform: translate(0, -.25rem) rotate(0deg)
+	50%
+		transform: translate(0, -.25rem) rotate(90deg)
+	100%
+		transform: translate(0, -.25rem) rotate(0deg)
+
 .authFormWrapper
-	display: flex
+	@include flex
 	width: 100vw
 	height: calc(100vh - 4rem - 4rem)
-	justify-content: center
-	align-items: center
 	position: fixed
 	background-color: white
 	top: 0
@@ -251,7 +230,6 @@ body > div
 	justify-content: space-between
 	.formTitle
 		display: flex
-		text-transform: uppercase
 		width: 100%
 		h2
 			display: block
@@ -259,43 +237,41 @@ body > div
 			flex: 1 1 0
 			cursor: pointer
 			font-size: 1.25rem
-			&:hover
-				transform: translate(0, -.5rem)
-				color: rgba(0, 0, 0, 0.8)
-			&:active
-				transform: translate(0, -.25rem)
+			@include hoveredAndActivated
 	form
 		width: 100%
 		display: flex
 		flex-direction: column
-		text-transform: uppercase
 		& > div
-			width: 100%
+			width: inherit
 			position: relative
 			margin-bottom: 1rem
 			height: 3rem
 		input
-			width: 100%
+			transition: .15s
+			width: inherit
 			height: 3rem
 			border-radius: .5rem
-			border: 1px solid rgba(0, 0, 0, 0.25)
+			border: 1px solid hsl(0, 0%, 75%)
 			background: transparent
 			padding: 0 .5rem
 			&:hover
-				border-color: rgba(0, 0, 0, 0.45)
+				border-color: hsl(0, 0%, 70%)
 			&:hover + label
-				color: rgba(0, 0, 0, 0.63)
+				color: hsl(0, 0%, 70%)
 			&:hover + label::after
 				filter: opacity(.63)
-			&:focus+ label
-				color: rgba(0, 0, 0, 0.75)
+			&:focus
+				border-color: hsl(0, 0%, 60%)
+			&:focus + label
+				color: hsl(0, 0%, 60%)
 			&:focus+ label::after
-				filter: opacity(.75)
+				filter: opacity(.30)
 		input + label
-			font-size: 1rem
+			transition: .15s
 			position: absolute
 			display: inline-block
-			color: rgba(0, 0, 0, 0.45)
+			color: hsl(0, 0%, 75%)
 			z-index: 2
 			background-color: white
 			font-size:.75rem
@@ -305,13 +281,14 @@ body > div
 			left: .5rem
 			top: -0.65rem
 		input + label::after
+			transition: .15s
 			content: ''
 			position: absolute
 			top: 0.05rem
 			width: 1rem
 			height: 1rem
 			padding-left: .5rem
-			filter: opacity(.45)
+			filter: opacity(.25)
 			background-size: 1rem
 			background-position: center center
 			background-repeat: no-repeat
@@ -319,39 +296,16 @@ body > div
 			background-image: url(./../assets/images/viaEmail.png)
 		input[type="password"] + label::after
 			background-image: url(./../assets/images/lock.png)
-		h3
-			text-align: center
-
+		input[type="submit"]
+			cursor: pointer
 		.authOptions
-			display: flex
-			justify-content: center
+			@include flex
 			padding: .5rem
 			img
-				width: 2rem
-				height: 2rem
+				@include hoveredAndActivated
+				margin-left: 1rem
 				&:hover
-					transform: translate(0, -.5rem)
 					filter: opacity(.85)
-				&:active
-					transform: translate(0, -.25rem)
-
-
-@keyframes shakingCube
-	0%
-		transform: translate(0, -.25rem) rotate(0deg)
-	50%
-		transform: translate(0, -.25rem) rotate(90deg)
-	100%
-		transform: translate(0, -.25rem) rotate(0deg)
-
-@keyframes popUpNewFavoriteColor
-	from
-		transform: translateX(-2rem)
-		filter: opacity(0)
-	to
-		transform: translateX(0)
-		filter: opacity(1)
-
 
 .notifications
 	z-index: 3
@@ -370,19 +324,14 @@ body > div
 	margin-bottom: .5rem
 	font-size: 1rem
 	backdrop-filter: blur(20px)
-
-.notification
-
-.notificationHeader
-	// border-radius: 1rem 1rem 0 0
 	background-color: rgba(0, 0, 0, 0.13)
 	display: flex
 	justify-content: center
-	width: 100%
 	padding: .5rem
 
+
 .notificationType
-	height: 1.5rem
+	height: 2rem
 	flex: 0 0 1rem
 	display: flex
 	align-items: center
@@ -401,7 +350,6 @@ body > div
 		background-color: #dc3545
 
 .notificationMessage
-	text-transform: uppercase
 	margin: 0 .5rem
 	flex: 1 1 auto
 	font-size: calc(1vmin + .4em)
@@ -410,16 +358,15 @@ body > div
 
 .notificationButtons
 	flex: 0 0 auto
-	height: 1.5rem
+	height: 2rem
 	display: flex
 	justify-content: space-between
 	& > img:first-child
 		margin-right: .25rem
 	img
 		display: inline-block
-		width: 1.5rem
-		height: 1.5rem
 		filter: opacity(.33)
+		@include hoveredAndActivated
 		&:hover
 			transform: translate(0, -.25rem)
 			filter: opacity(.66)
@@ -434,7 +381,6 @@ body > div
 	background-color: #dc3545cc
 	backdrop-filter: blur(5px)
 	border-radius: 0 0 1rem 0
-
 
 ::-webkit-scrollbar
 	cursor: pointer

@@ -4,17 +4,17 @@ import { Main, Title, Options, Notifications } from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { selectHSL } from '@store/hslReducer/actions.js'
+import { selectHSL, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
-import { copyClipboardTextToReducer, reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from './store/copiedColorReducer/actions.js'
+import { copyClipboardTextToReducer, reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from '@store/copiedColorReducer/actions.js'
 
 import styles from './App.module.sass'
 
-import { STARTED_COLLECTION } from '@/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
-import { getDataFromLocalStorage, createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { getRandomGeneratedHSL, updateUrlAdress, getDataFromLocalStorage, createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
-import { unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
+import { updateFirestore, unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
 
 import { onAuthStateChanged  } from "firebase/auth";
 
@@ -60,17 +60,17 @@ const App = () => {
 		console.log(actualDataFromFirestore)
 		let { hue, saturation, lightness } = actualDataFromFirestore.hsl
 		dispatch(selectHSL({ hue, saturation, lightness }))
+		dispatch(getNewDefaultColorToCopy(actualDataFromFirestore.hsl.defaultFormatToCopy))
 
 		setRefHue(hue)
 		setRefSaturation(saturation)
 		setRefLightness(lightness)
 	}
 
-	function oneTimeChanged (fn, value) {fn (prev => +prev + value) }
-
 	function checkForTheSameTextIn() {
 		let urlAddress = getUrlAddress()
-		toReadTextFromClipboard()
+		
+		document.hasFocus() && toReadTextFromClipboard()
 			.then(data => {
 				dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy]))
 				dispatch(checkForTheSameUrlInClipboard(data, urlAddress))
@@ -85,8 +85,7 @@ const App = () => {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
 			.then(collection => getDataFromFireStore(collection, 'hsl'))
 			.then(dataFromFireStore => {
-				let { hue, saturation, lightness } = dataFromFireStore
-				dispatch(selectHSL({ hue, saturation, lightness }))
+				dispatch(selectHSL({ ...dataFromFireStore }))
 				hslSub = unsub(updateHslStateViaFirestore, STARTED_COLLECTION, currentUser)
 			})
 			.finally(() => {
@@ -108,6 +107,7 @@ const App = () => {
 	useEffect(() => {
 		setDataIntoLocalStorage('hsl', hsl)
 		dispatch(reformatFormats(hsl))
+		updateUrlAdress(hsl)
 		checkForTheSameTextIn()
 	}, [hsl])
 
@@ -115,8 +115,41 @@ const App = () => {
 		changeHSL()
 	}, [refHue, refSaturation, refLightness])
 	
+
+	function getRandomColor () {
+		let generatedHSL = { ...getRandomGeneratedHSL(), defaultFormatToCopy: hsl.defaultFormatToCopy }
+		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
+	}
+
+	function updateClipboard () {
+		toReadTextFromClipboard()
+			.then(data => {
+				if (data !== copiedColorReducer[hsl.defaultFormatToCopy]) {
+					addNewNotification(`${hsl.defaultFormatToCopy} color copied successfully`)
+					dispatch(copyClipboardTextToReducer(copiedColorReducer[hsl.defaultFormatToCopy]))
+					toWriteTextIntoClipboard(copiedColorReducer[hsl.defaultFormatToCopy])	
+				} else {
+					addNewNotification('text is already in clipboard', 'error')
+				}
+			})
+			.catch(error => addNewNotification(error.message, 'error'))
+
+		toReadTextFromClipboard()
+			.then(data => dispatch(checkForTheSameTextInClipboard(data, copiedColorReducer[hsl.defaultFormatToCopy])))
+	}
+
+
+	window.onkeypress = (e) => {
+		if (e.code === "Space") {
+			getRandomColor()
+		} else if (e.code === "Enter") {
+			updateClipboard()
+			checkForTheSameTextIn()
+		}
+	}
+
 	window.onfocus = () => {
-		// checkForTheSameTextIn()
+		checkForTheSameTextIn()
 	}
 
 	function getColorFromSharedURL () {
@@ -185,7 +218,6 @@ const App = () => {
 				addNewNotification={addNewNotification}
 				currentUser={currentUser}
 				sliders={slidersConfig}
-				oneTimeChanged={oneTimeChanged}
 			/>
 			<Options
 				isLoading={isLoading}

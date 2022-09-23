@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect} from "react";
 
-import { getRefValues, updateUrlAdress, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
+import { getRefValues, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
@@ -8,7 +8,9 @@ import { resetValueOfHSL } from '@store/hslReducer/actions.js'
 
 import { unsub, updateFirestore } from '@utils/firestoreUtils.js'
 
-export default function Slider ({ currentUser, oneTimeChanged, relatedValue, setRef, min, max }) {
+import { STARTED_COLLECTION } from '@consts/consts.js'
+
+export default function Slider ({ currentUser, relatedValue, setRef, min, max }) {
 	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
@@ -23,7 +25,6 @@ export default function Slider ({ currentUser, oneTimeChanged, relatedValue, set
 
 	function removeBounceEffectListener (e) {
 		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
-		updateUrlAdress(hsl)
 		updateFirestore('hsl', hsl, startCollection, currentUser)
 	}
 
@@ -60,18 +61,22 @@ export default function Slider ({ currentUser, oneTimeChanged, relatedValue, set
 	}
 
 	function oneTimeChanged_ (e) {
-		// let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
-		// let clickOffset = e.pageX
+		let [ startSliderTrack, sliderTrackWidth ] = getRefValues(sliderTrack, ['offsetLeft', 'offsetWidth'])
+		let clickOffset = e.pageX
 
-		// if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + sliderTrackWidth) return
+		if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + sliderTrackWidth) return
 
-		// let isClickOnTheLeft = clickOffset < startSliderTrack
-		// if (hsl[relatedValue] <= min && isClickOnTheLeft) return
-		// if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
-		// if (isClickOnTheLeft)
-		// 	oneTimeChanged(setRef, -1)
-		// else
-		// 	oneTimeChanged(setRef, 1)
+		let isClickOnTheLeft = clickOffset < startSliderTrack
+		if (hsl[relatedValue] <= min && isClickOnTheLeft) return
+		if (hsl[relatedValue] >= max && !isClickOnTheLeft) return
+		if (isClickOnTheLeft) {
+			let newState = { ...hsl, [relatedValue]: hsl[relatedValue] - 1}
+			updateFirestore('hsl', newState, STARTED_COLLECTION, currentUser)
+		}
+		else {
+			let newState = { ...hsl, [relatedValue]: hsl[relatedValue] + 1}
+			updateFirestore('hsl', newState, STARTED_COLLECTION, currentUser)
+		}
 	}
 
 	function toCheckForResetValue (e) {

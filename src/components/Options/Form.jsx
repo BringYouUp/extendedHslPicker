@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { selectHSL } from '@store/hslReducer/actions.js'
 import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import { IMG_USERED, IMG_LOGIN_VIA_EMAIL, IMG_LOGIN_VIA_GOOGLE, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@/resources.js'
+import { IMG_USERED, IMG_LOGIN_VIA_EMAIL, IMG_LOGIN_VIA_GOOGLE, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@consts/resources.js'
 
 import { app, db, auth } from '@/../firebase-config.js'
 
@@ -17,7 +17,7 @@ import { Spinner } from '@components/index.js'
 
 const googleProvider = new GoogleAuthProvider();
 
-import { STARTED_COLLECTION } from '@/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
 import { getCollectionFromFireStore, getDataFromFireStore, updateFirestore, unsub } from '@utils/firestoreUtils.js'
 
@@ -134,15 +134,15 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 				</div>
 				
 				<form ref={formRef}>
-					<div className="inputEmailWrapper">
+					<div>
 						<input name="email" type="text" /><label>email</label>
 					</div>
 
-					<div className="inputPasswordWrapper">
+					<div>
 						<input name="password" type="password" /><label>password</label>
 					</div>
 
-					<div className="submitWrapper">
+					<div>
 						{
 							!isLoading
 							? <input
@@ -153,16 +153,12 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 						}
 					</div>
 					
-					
-					<h3>Login via</h3>
-
 					<div className="authOptions">
+						<h3>Login via</h3>
 						<img
 							src={ IMG_LOGIN_VIA_GOOGLE }
 							onClick={(e) => { signInViaGoogle(e) }} />
-						
 					</div>
-
 				</form>
 			</div>
 		</div>
