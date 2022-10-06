@@ -1,5 +1,12 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.5 ---
+
+	** COMMON
+		- hi, I'm a release version
+	** MINOR
+		- deleted useless dependencies
+
 --- VER. 0.4.4 ---
 
 	** COMMON

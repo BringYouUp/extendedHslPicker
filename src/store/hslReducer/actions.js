@@ -1,7 +1,5 @@
 import { SELECT_HSL, STARTED_HSL, RESET_VALUE_OF_HSL, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
-import { INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS, INITIAL_ALPHA } from '@consts/consts.js'
-
 export function selectHSL (actualValue) {
 	return {
 		type: SELECT_HSL,

@@ -1,20 +1,20 @@
 import React from "react";
 
+import styles from '@styles/root.sass'
+
 import { Main, Title, Options, Notifications, NotFound } from '@components/index.js'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { selectHSL, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
+import { selectHSL } from '@store/hslReducer/actions.js'
 
-import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard} from '@store/copiedColorReducer/actions.js'
+import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
 
-import styles from './App.module.sass'
-
-import { STARTED_COLLECTION, STARTED_HSL_REDUCER} from '@consts/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
 import { getInitialUser, isTextTheSame, getRandomGeneratedHSL, updateUrlAdress, createNotification, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
-import { updateFirestore, unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
+import { updateFirestore } from '@utils/firestoreUtils.js'
 
 import { onAuthStateChanged  } from "firebase/auth";
 
@@ -116,7 +116,6 @@ const App = () => {
 			: <>
 				<div className="rootWrapper">
 					<Notifications
-						isLoading={isLoading}
 						notifications={notifications}
 						removeNotification={removeNotification}
 					/>

@@ -2,7 +2,6 @@ import React from "react";
 
 import './Skeleton.sass'
 
-
 const Skeleton = ({ count = 1 }) => {
 	
 	return (

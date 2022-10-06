@@ -2,20 +2,15 @@ import React from "react";
 
 import './Notifications.sass'
 
-import { useSelector } from "react-redux"
-
-import { Slider, Board } from '@components/index.js'
-
 import { IMG_ADDED, IMG_CROSS } from '@consts/resources.js'
 
-export default function Notification ({ message, messageID, removeNotification, type, onAgree, onDisagree }) {
+export default function Notification ({ message, messageID, removeNotification, type, onAgree }) {
 	const [ isVisible, updateVisible ] = React.useState(true)
 
 	React.useEffect(() => {
 		let toUnvisible = null
-		// if (type !== 'action') {
-			toUnvisible = setTimeout(() => { updateVisible(false) }, 5000)
-		// }
+		
+		toUnvisible = setTimeout(() => { updateVisible(false) }, 5000)
 
 		return () => { clearTimeout(toUnvisible) }
 	}, [])

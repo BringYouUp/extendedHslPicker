@@ -4,21 +4,18 @@ import './Form.sass'
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { IMG_USERED, IMG_LOGIN_VIA_EMAIL, IMG_LOGIN_VIA_GOOGLE, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@consts/resources.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
+import { IMG_LOGIN_VIA_GOOGLE } from '@consts/resources.js'
 
-import { app, db, auth } from '@/../firebase-config.js'
+import { auth } from '@/../firebase-config.js'
 
 import { getDataFromLocalStorage } from '@utils/utils.js'
 
-import { signOut, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 import { Spinner } from '@components/index.js'
 
 const googleProvider = new GoogleAuthProvider();
-
-import { STARTED_COLLECTION } from '@consts/consts.js'
-
-import { getCollectionFromFireStore, getDataFromFireStore, updateFirestore, unsub } from '@utils/firestoreUtils.js'
 
 export default function Form ({ updateLoadingState, setFavoriteColorsList, currentUser, setCurrentUser, setIsAuthOpened, addNewNotification }) {
 	const hsl = useSelector(state => state.hsl)

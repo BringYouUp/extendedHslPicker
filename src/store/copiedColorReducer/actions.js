@@ -1,4 +1,4 @@
-import { REFORMAT_FORMATS, TEXT_FROM_CLIPBOARD, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLIPBOARD } from './types.js'
+import { REFORMAT_FORMATS, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLIPBOARD } from './types.js'
 
 import { getFormatted, isTextTheSame } from '@utils/utils.js'
 

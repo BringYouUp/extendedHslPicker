@@ -4,7 +4,6 @@ import { Spinner } from '@components/index.js'
 
 import './NotFound.sass'
 
-
 const NotFound = () => {
 	return (
 		<div className='not-found'>

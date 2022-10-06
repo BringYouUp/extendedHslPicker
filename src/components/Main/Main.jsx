@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux"
 
 import { Slider, Board, Skeleton } from '@components/index.js'
 
-import { isTwoObjectTheSame, isTextTheSame, getRandomGeneratedHSL, updateUrlAdress, getDataFromLocalStorage, createNotification, isAddressBarIncludeQuery, getStartedColorFromAddressBar, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { isTwoObjectTheSame, isAddressBarIncludeQuery, setDataIntoLocalStorage } from '@utils/utils.js'
 
 import { updateFirestore, unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
 
@@ -14,7 +14,7 @@ import { STARTED_COLLECTION, STARTED_HSL_REDUCER} from '@consts/consts.js'
 
 import { selectHSL, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
-function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotification, currentUser, setCurrentUser }) {
+function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotification, currentUser }) {
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 

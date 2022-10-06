@@ -10,7 +10,7 @@ import { resetValueOfHSL } from '@store/hslReducer/actions.js'
 
 import { updateFirestore } from '@utils/firestoreUtils.js'
 
-import { STARTED_COLLECTION, INITIAL_FORMAT_TO_COPY } from '@consts/consts.js'
+import { STARTED_COLLECTION } from '@consts/consts.js'
 
 import { selectHSL } from '@store/hslReducer/actions.js'
 

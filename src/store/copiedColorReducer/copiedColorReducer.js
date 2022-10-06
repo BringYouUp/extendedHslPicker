@@ -2,8 +2,6 @@ import { REFORMAT_FORMATS, IS_THE_SAME_TEXT_IN_CLIPBOARD, IS_THE_SAME_URL_IN_CLI
 
 import { INITIAL_COPIED_COLOR_REDUCER } from '@consts/consts.js'
 
-import { getRandomGeneratedNumber } from '@utils/utils.js'
-
 export const copiedColorReducer = (state = INITIAL_COPIED_COLOR_REDUCER, action) => {
 	switch (action.type) {
 		case REFORMAT_FORMATS:

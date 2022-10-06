@@ -28,4 +28,3 @@ function Board ({ updateClipboard, isLoading, addNewNotification }) {
 }
 
 export default Board
-// export default React.memo(Board)

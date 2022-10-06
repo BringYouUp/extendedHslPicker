@@ -6,12 +6,11 @@ import { Form, FavoriteColorList, Spinner, Skeleton } from '@components/index.js
 
 import { useDispatch, useSelector } from 'react-redux'
 
-import { isTextTheSame, toReadTextFromClipboard, setDataIntoLocalStorage, getDataFromLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { isTextTheSame, toReadTextFromClipboard, setDataIntoLocalStorage, isMobileDevice, getFormattedHSL, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
 
 import { selectHSL, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
-import { INITIAL_HSL_REDUCER, INITIAL_FORMAT_TO_COPY, STARTED_COLLECTION } from '@consts/consts.js'
-
+import { INITIAL_HSL_REDUCER, STARTED_COLLECTION } from '@consts/consts.js'
 import { IMG_USERED, IMG_LOGOUT, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@consts/resources.js'
 
 import { updateFirestore } from '@utils/firestoreUtils.js'

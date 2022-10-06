@@ -1,8 +1,8 @@
-import { doc, deleteDoc, updateDoc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 
-import { INITIAL_FIRESTORE_STATE, LS_MAIN_KEY, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@consts/consts.js'
+import { INITIAL_FIRESTORE_STATE } from '@consts/consts.js'
 
-import { app, db } from '@/../firebase-config.js'
+import { db } from '@/../firebase-config.js'
 
 export async function getDocFromFirestore (...path) {
 	const docRef = await doc(db, ...path)

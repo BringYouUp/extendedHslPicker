@@ -1,8 +1,6 @@
 import { STARTED_HSL_REDUCER, INITIAL_HSL_REDUCER} from '@consts/consts.js'
 
-import { SELECT_HSL, RESET_VALUE_OF_HSL, REFORMAT_FORMATS, GET_NEW_DEFAULT_FORMAT } from './types.js'
-
-import { getRandomGeneratedNumber } from '@utils/utils.js'
+import { SELECT_HSL, RESET_VALUE_OF_HSL, GET_NEW_DEFAULT_FORMAT } from './types.js'
 
 export const hsl = (state = STARTED_HSL_REDUCER, action) => {
 	switch (action.type) {
