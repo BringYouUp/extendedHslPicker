@@ -9,14 +9,6 @@ export function reformatFormats (actualHSL) {
 	}
 }
 
-export function copyClipboardTextToReducer (actualText) {
-	// console.log(actualText)
-	return {
-		type: TEXT_FROM_CLIPBOARD,
-		payload: actualText
-	}
-}
-
 export function checkForTheSameTextInClipboard (clipboardText, anotherText) {
 	return {
 		type: IS_THE_SAME_TEXT_IN_CLIPBOARD,

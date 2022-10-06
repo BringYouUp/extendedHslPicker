@@ -1,5 +1,4 @@
 export const SELECT_HSL = 'SELECT_HSL' 
-export const STARTED_HSL = 'STARTED_HSL' 
 export const RESET_VALUE_OF_HSL = 'RESET_VALUE_OF_HSL' 
 
 export const RESET_HUE = 'RESET_HUE'

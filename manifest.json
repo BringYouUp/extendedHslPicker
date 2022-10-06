@@ -1,0 +1,15 @@
+{
+  "short_name": "HSLPicker",
+  "name": "Extended HSL Picker",
+  "description": "Get and copy uniq color",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "192x192",
+      "type": "img/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff"
+}

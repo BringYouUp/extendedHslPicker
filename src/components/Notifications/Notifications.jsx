@@ -1,5 +1,7 @@
 import React from "react";
 
+import './Notifications.sass'
+
 import { Notification } from '@components/index.js'
 
 function Notifications ({ notifications, removeNotification }) {

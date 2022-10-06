@@ -1,0 +1,36 @@
+@import '@styles/template'
+
+footer
+	z-index: 2
+	width: 100%
+	display: flex
+	justify-content: space-between
+	align-items: center
+	padding: 1rem
+	height: 4rem
+	position: relative 
+	&.mobile
+		justify-content: space-between
+	& > div.spinner
+		width: 2rem
+		height: 2rem
+	& > *
+		border-radius: $border-radius
+		display: inline-block
+		width: 2rem
+		height: 2rem
+	& > img
+		filter: opacity(.75)
+		@include hoveredAndActivated
+		&:hover
+			filter: opacity(.85)
+	[data-name="random"]:active
+		animation: shakingCube .1s ease
+
+@keyframes shakingCube
+	0%
+		transform: translate(0, -.25rem) rotate(0deg)
+	50%
+		transform: translate(0, -.25rem) rotate(90deg)
+	100%
+		transform: translate(0, -.25rem) rotate(0deg)

@@ -1,4 +1,4 @@
-import { getFormatted, getStartedColor } from '@utils/utils.js'
+import { getStartedColorFromAddressBar } from '@utils/utils.js'
 
 export const INITIAL_HUE = 0
 export const INITIAL_SATURATION = 100
@@ -16,24 +16,19 @@ export const INITIAL_HSL_REDUCER = {
 	defaultFormatToCopy: INITIAL_FORMAT_TO_COPY,
 }
 
+const startedStateColor = getStartedColorFromAddressBar()
+
 export const STARTED_HSL_REDUCER = {
-	hue: INITIAL_HUE,
-	saturation: INITIAL_SATURATION,
-	lightness: INITIAL_LIGHTNESS,
-	defaultFormatToCopy: INITIAL_FORMAT_TO_COPY,
+	...INITIAL_HSL_REDUCER,
+	...startedStateColor,
 }
 
 export const INITIAL_FIRESTORE_STATE = {
 	favoriteColorsList: [],
-	hsl: {
-		hue: INITIAL_HUE,
-		saturation: INITIAL_SATURATION,
-		lightness: INITIAL_LIGHTNESS
-	}
+	hsl: { ...INITIAL_HSL_REDUCER }
 }
 
 export const INITIAL_COPIED_COLOR_REDUCER = {
-	textFromClipboard: null,
 	isTheSameTextInClipboard: false,
 	isTheSameUrlInClipboard: false,
 }

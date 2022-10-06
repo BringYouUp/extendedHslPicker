@@ -1,5 +1,19 @@
 https://extended-hsl-picker.web.app/
 
+--- VER. 0.4.4 ---
+
+	** COMMON
+		- getting started color from shared link and user can select it
+		- window adapting to scale changes
+		- checking for internet connection in real time
+	** STYLE
+		- added new component skeleton
+	** FIXED
+		- after removing liked color actual state does not change
+	** MINOR
+		- all images are compressed
+		- added meta tags for correct display and adaptation
+
 --- VER. 0.4.3 ---
 
 	** COMMON
@@ -8,7 +22,7 @@ https://extended-hsl-picker.web.app/
 	** STYLE
 		- updated skeleton styles (colors and duration)
 		- added favicon
-		- restyled title fomt-size
+		- restyled title font-size
 	** FIXED
 		- all operation with clipboard hanle only if document.hasFocus()
 	** MINOR

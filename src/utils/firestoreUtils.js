@@ -2,7 +2,6 @@ import { doc, deleteDoc, updateDoc, getDoc, setDoc, onSnapshot } from 'firebase/
 
 import { INITIAL_FIRESTORE_STATE, LS_MAIN_KEY, INITIAL_HUE, INITIAL_SATURATION, INITIAL_LIGHTNESS } from '@consts/consts.js'
 
-
 import { app, db } from '@/../firebase-config.js'
 
 export async function getDocFromFirestore (...path) {
@@ -41,8 +40,4 @@ export function updateFirestore(key, actualData, ...path) {
 	updateDoc(docRef, {
 		[key]: actualData
 	})
-}
-
-export function unsub (setFunc, ...args) {
-	return onSnapshot(doc(db, ...args), doc => setFunc(doc.data()))
 }

@@ -9,13 +9,6 @@ export function selectHSL (actualValue) {
 	}
 }
 
-export function getStartedHSL (startedValue) {
-	return {
-		type: STARTED_HSL,
-		payload: startedValue
-	}
-}
-
 export function resetValueOfHSL (resettingKey) {
 	return {
 		type: RESET_VALUE_OF_HSL,

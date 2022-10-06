@@ -1,5 +1,7 @@
 import React from "react";
 
+import './Spinner.sass'
+
 import { IMG_DOT } from '@consts/resources.js'
 
 const Spinner = () => {

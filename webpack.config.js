@@ -12,7 +12,6 @@ const { PROJECT_ROOT, SOURCE_DIRECTORY, BUILD_DIRECTORY} = require('./webpack-co
 const getOptimization = () => {
 	const config = {
 		splitChunks: {
-			// chunks: 'all'
 		}
 	}
 
@@ -49,7 +48,6 @@ module.exports = () => {
 			static: true,
 			historyApiFallback: true,
 			port: 8081,
-			// hot: 'only',
 			open: true,
 			client: {
 		      overlay: true,
@@ -95,27 +93,39 @@ module.exports = () => {
 					generator: {
 						filename: 'img/[name][ext]'
 					}
+				},
+				{
+					test: /\.(eot|ttf|woff|woff2)$/i,
+					exclude: /node_modules/,
+					type: 'asset/resource',
+					generator: {
+						filename: 'fonts/[name][ext]'
+					}
 				}
 			],
 		},
 		plugins: [
-			// new webpack.HotModuleReplacementPlugin(),
 			new CleanWebpackPlugin(),
 			new HtmlWebpackPlugin({
 				template: path.join(__dirname, 'index.html'),
 				title: 'hslPicker',
-				favicon: "src/assets/images/random.png",
+				favicon: "src/assets/images/favicon.png",
 				minify: {
 					collapseWhitespace: !isDevelopment ? true : false,
-				}
-				// favicon: "./src/img/title-icon.png",
+				},
+				meta: {
+					scalable: {
+						name: 'viewport',
+						content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+					}
+				},
 			}),
 			new MiniCssExtractPlugin({
 				filename: getAppropriateFilename('css'),
 			}),
 		],
 		resolve: {
-			extensions: ['', '.js', '.jsx'],
+			// extensions: ['', '.js', '.jsx'],
 			alias: {
 				'@': SOURCE_DIRECTORY,
 				'@assets': path.resolve(__dirname, './src/assets'),

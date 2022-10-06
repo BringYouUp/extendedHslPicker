@@ -1,0 +1,26 @@
+@import '@styles/template'
+
+main
+	@include flexReverse
+	flex: 1 1 auto
+	width: $slider-width
+	& > div.skeleton
+		height: $slider-point-size
+		width: $slider-width
+	& > div.skeleton:nth-child(n+2)
+		margin: 1.5rem 0
+	& > div:nth-child(1)
+		border-radius: $border-radius
+		cursor: pointer
+		width: $board-size
+		height: $board-size
+		display: grid
+		margin-bottom: 1.5rem
+		place-items: center
+		@include hoveredAndActivated
+		&:hover span
+			opacity: 1
+		& > span
+			display: block
+			opacity: .8
+			font-size: calc(1vmin + 1rem)

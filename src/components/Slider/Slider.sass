@@ -1,0 +1,41 @@
+@import '@styles/template'
+
+.sliderWrapper
+	transition: .15s
+	@include flex
+	width: inherit
+	height: $slider-wrapper-height
+	.sliderWrapperInner
+		width: inherit
+		height: $slider-height
+		border-radius: calc(#{$slider-height} / 2)
+	.sliderTrack
+		width: inherit
+		height: inherit
+		position: relative
+		z-index: 2
+		top: 0
+		left: 0
+		background-color: transparent
+		&:before, &:after
+			content: ''
+			width: 100vw
+			height: calc(#{$slider-wrapper-height} / 2)
+			position: absolute
+			background-color: transparent
+			left: calc(50%)
+			transform: translateX(-50%)
+		&:before
+			bottom: 0rem
+		&:after
+			top: 0rem
+	.sliderPoint
+		z-index: 3
+		touch-action: none
+		border-radius: 50%
+		position: absolute
+		height: $slider-point-size
+		width: $slider-point-size
+		top: calc(50%)
+		transform: translateY(-50%)
+		left: calc(#{$slider-point-size} / 2)

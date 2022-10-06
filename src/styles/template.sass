@@ -1,14 +1,9 @@
-$board-size: 15
-$cell-gap: 0.3rem
-$cell-size: calc(85vmin / #{$board-size} - #{$cell-gap})
-$cell-border-radius: calc(#{$cell-size} / 5)
-
-@mixin ticCell
-	background-image: url('@/img/tic.png')
-	background-color: $tic-color
-
+$slider-wrapper-height: 4rem
 $slider-width: 45vmin
-$slider-height: 0.25rem
+$slider-height: 0.5rem
+$slider-point-size: calc(#{$slider-height} * 2)
+$board-size: calc(#{$slider-width} * 0.9)
+$border-radius: 0.75rem
 
 @mixin flex
 	display: flex

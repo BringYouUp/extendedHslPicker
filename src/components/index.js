@@ -8,5 +8,8 @@ import Main from './Main/Main.jsx'
 import Notifications from './Notifications/Notifications.jsx'
 import Notification from './Notifications/Notification.jsx'
 import Spinner from './Spinner/Spinner.jsx'
+import Skeleton from './Skeleton/Skeleton.jsx'
+import NotFound from './NotFound/NotFound.jsx'
 
-export { Board, Slider, Title, Options, Main, Form, Notification, Notifications, FavoriteColorList, Spinner}
+
+export { NotFound, Skeleton, Board, Slider, Title, Options, Main, Form, Notification, Notifications, FavoriteColorList, Spinner}

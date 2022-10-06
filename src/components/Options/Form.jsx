@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback} from "react";
+import React from "react";
+
+import './Form.sass'
 
 import { useDispatch, useSelector } from "react-redux"
-
-import { selectHSL } from '@store/hslReducer/actions.js'
-import { copyClipboardTextToReducer, checkForTheSameUrlInClipboard } from '@store/copiedColorReducer/actions.js'
 
 import { IMG_USERED, IMG_LOGIN_VIA_EMAIL, IMG_LOGIN_VIA_GOOGLE, IMG_LOGOUT, IMG_LOGIN, IMG_USER, IMG_COPIED_URL, IMG_MENU, IMG_HELP, IMG_COPY_COLOR, IMG_COPY_URL, IMG_RANDOM, IMG_ADD, IMG_ADDED, IMG_LIST } from '@consts/resources.js'
 
@@ -25,10 +24,10 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 
-	const [isLoading, setIsLoading] = useState(false)
-	const [response , setResponce] = useState(null)
+	const [isLoading, setIsLoading] = React.useState(false)
+	const [response , setResponce] = React.useState(null)
 
-	const [ isFormHasRegisterState, setFormState ] = useState(false)
+	const [ isFormHasRegisterState, setFormState ] = React.useState(false)
 
 	const formRef = React.useRef(null)
 
@@ -60,16 +59,10 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 			})
 	}
 
-	function toCopyDataFromGuestMode (currentUser, hsl, likedList) {
-		updateFirestore('hsl', hsl, STARTED_COLLECTION, currentUser)
-		updateFirestore('favoriteColorsList', likedList, STARTED_COLLECTION, currentUser)
-	}
-
 	function signInUserWithEmailAndPassword (e) {
 		e.preventDefault()
 		setIsLoading(true)
 		
-		// let dataFromForm = ['temkakapli42@mail.ru', '111111']
 		let dataFromForm = getDataFromForm(formRef)
 		let colorGuestMode = getDataFromLocalStorage('hsl')
 		let likedListGuestMode = getDataFromLocalStorage('favoriteColorsList')
@@ -78,7 +71,6 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 			.then( userCredential => {
 				authStateHasChanged(userCredential.user.uid)
 				addNewNotification('successfully logged in')
-				// addNewNotification('would you like to copy the data from guest mode?', 'action', () => { toCopyDataFromGuestMode(userCredential.user.uid, colorGuestMode, likedListGuestMode) })
 				updateLoadingState(true)
 			})
 			.catch( error => {

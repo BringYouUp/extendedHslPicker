@@ -1,8 +1,10 @@
 import React from "react";
 
+import './FavoriteColorList.sass'
+
 import { STARTED_COLLECTION } from '@consts/consts.js'
 
-import { useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 
 import { getUrlAddress, createNotification } from '@utils/utils.js'
 
@@ -10,44 +12,40 @@ import { getFormattedHSL } from '@utils/utils.js'
 
 import { selectHSL } from '@store/hslReducer/actions.js'
 
-import { getCollectionFromFireStore, getDataFromFireStore, unsub } from '@utils/firestoreUtils.js'
+import { updateFirestore , getCollectionFromFireStore, getDataFromFireStore, unsub } from '@utils/firestoreUtils.js'
 
-function FavoriteColorList ({ favoriteColorsList, currentUser, setFavoriteColorsList}) {
+function FavoriteColorList ({ addNewNotification, currentUser, favoriteColorsList, setFavoriteColorsList}) {
 	const dispatch = useDispatch()
+	const hsl = useSelector(state => state.hsl)
 	let favoriteListSub = null
-
-	function updateFavoriteColorsListViaFirestore (actualDataFromFirestore) {
-		setFavoriteColorsList(prev => actualDataFromFirestore.favoriteColorsList || prev)
-	}
 
 	function initializeFavoriteColorList() {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
 			.then(collection => getDataFromFireStore(collection, 'favoriteColorsList')
 			.then(dataFromFireStore => {
 				setFavoriteColorsList(dataFromFireStore)
-				favoriteListSub = unsub(updateFavoriteColorsListViaFirestore, STARTED_COLLECTION, currentUser)
 			}))
+			.catch(error => {
+				addNewNotification(error.message, 'error')
+			})
+	}
+
+	function selectFavoriteColor (selectedFavoriteColor) {
+		let finalSelectedFavoriteColor = {
+			hue: selectedFavoriteColor.hue,
+			saturation: selectedFavoriteColor.saturation,
+			lightness: selectedFavoriteColor.lightness,
+			defaultFormatToCopy: hsl.defaultFormatToCopy
+		}
+
+		updateFirestore('hsl', finalSelectedFavoriteColor, STARTED_COLLECTION, currentUser)
+		dispatch(selectHSL(finalSelectedFavoriteColor))
 	}
 
 	React.useEffect(() => {
 		initializeFavoriteColorList()
-
-		return () => { 
-			if (typeof favoriteListSub === "function") {
-				favoriteListSub()
-			}
-		}
 	}, [currentUser])
 
-	React.useEffect(() => {
-		initializeFavoriteColorList()
-
-		return () => { 
-			if (typeof favoriteListSub === "function") {
-				favoriteListSub()
-			}
-		}
-	}, [])
 
 	return (
 		<div className={`favoriteCellList`}>
@@ -56,11 +54,11 @@ function FavoriteColorList ({ favoriteColorsList, currentUser, setFavoriteColors
 					return (
 						<div
 							key={favoriteColor.id}
-							className="favoriteCell"
+							className='favoriteCell'
 							style={{
 								backgroundColor: getFormattedHSL(favoriteColor)
 							}}
-							onClick={() => dispatch(selectHSL(favoriteColor))}
+							onClick={() => selectFavoriteColor(favoriteColor)}
 						/> 
 					)
 				})
@@ -81,4 +79,4 @@ function isComponentNeedRerender (prevProps, nextProps) {
 	return !isShouldComponentUpdate
 }
 
-export default FavoriteColorList
+export default React.memo(FavoriteColorList, isComponentNeedRerender)

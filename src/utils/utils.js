@@ -43,16 +43,13 @@ export function getFormatted (HSL) {
 	}
 }
 
-export function toWriteTextIntoClipboard (textToCopy) {
-	console.log(textToCopy)
-	return navigator.clipboard.writeText(textToCopy)
-
+export async function toWriteTextIntoClipboard (textToCopy) {
+	await navigator.clipboard.writeText(textToCopy)
 }
 
 export async function toReadTextFromClipboard () {
 	return await navigator.clipboard.readText()		 
 }
-
 
 export function addStyleProperties (element, properties) {
 	for (let property in properties)
@@ -64,67 +61,33 @@ export function removeStyleProperties (element, properties) {
 		element.style.removeProperty(property)
 }
 
-export function isTextTheSame (clipboardText, anotherText) {
-	return clipboardText === anotherText
+export function isTextTheSame (a, b) {
+	return a === b
 }
 
 export function isAddressBarIncludeQuery () {
 	return window.location.search
 }
 
-export function parseAddressBar() {
-	let  paramsQueryObject = {}
-	let [ questionMark, ...queryString ] = window.location.search.split('')
+export function getStartedColorFromAddressBar() {
+	let paramsQueryObject = {}
+	let reExp = /(hue|saturation|lightness|defaultFormatToCopy)=(\d+|\w+)/g
 
-	let paramsQueryArray = queryString
-		.join('')
-		.split(/[=|&&]/)
-		.filter(item => item.length);
+	let queryString = window.location.search.replace(/\?/, '')
 
-	['hue', 'saturation', 'lightness'].forEach(item => {
-		if (paramsQueryArray.includes(item)) {
-			let index = paramsQueryArray.indexOf(item)
-			let isNewValueNumber = Number.isInteger(+paramsQueryArray[index + 1])
-			let newAppropriateValue = isNewValueNumber ? paramsQueryArray[index + 1] : undefined
+	if (queryString === '') return paramsQueryObject
 
-			paramsQueryObject[item] = newAppropriateValue
-		}
-	})
+	let queryArray = queryString.match(reExp)
+
+	for (let item of queryArray) {
+		let queryArrayCouple = item.match(/(\w+)/g)
+
+		paramsQueryObject[queryArrayCouple[0]] = Number.isInteger(+queryArrayCouple[1])
+			? +queryArrayCouple[1]
+			: queryArrayCouple[1]
+	}
 
 	return paramsQueryObject
-}
-
-export function getStartedColorFromAddressBar() {
-	let finalParamsObject = {}
-	
-	let paramsQueryObject = parseAddressBar()
-
-	for (let key in paramsQueryObject)
-		if (!finalParamsObject[key] && paramsQueryObject[key])
-			finalParamsObject[key] = paramsQueryObject[key]
-
-	return finalParamsObject
-}
-
-export function getStartedColorFromLocalStorage() {
-	let finalParamsObject = {}
-	let stateFromLS = getDataFromLocalStorage('hsl')
-
-	for (let key in stateFromLS)
-		if (!finalParamsObject[key] && stateFromLS[key])
-			finalParamsObject[key] = stateFromLS[key]
-
-	return finalParamsObject
-}
-
-export function getStartedColor () {
-	if (isAddressBarIncludeQuery())
-		return getStartedColorFromAddressBar()
-
-	if (localStorage.getItem('hsl'))
-		return getStartedColorFromLocalStorage()
-	
-	return null
 }
 
 export function getUrlAddress () {
@@ -157,7 +120,6 @@ export function setDataIntoLocalStorage (key, data) {
 }
 
 export function getDataFromLocalStorage (key) {
-	
 	return JSON.parse(localStorage.getItem(key))
 }
 
@@ -208,3 +170,30 @@ export function getRefValues (node, params) {
 
 	return returnedValues
 }
+
+export function isTwoObjectTheSame (obj1, obj2) {
+	let obj1Keys = Object.keys(obj1)
+	let obj2Keys = Object.keys(obj2)
+
+	if (obj1Keys.length !== 4 || obj2Keys.length !== 4) return true
+
+	if (obj1Keys.length !== obj2Keys.length) return false
+
+	let someKeyIsDifferent = obj1Keys.some(key => !obj2Keys.includes(key))
+
+	if (someKeyIsDifferent) return false
+
+	for (let key in obj1) 
+		if (obj1[key] !== obj2[key])
+			return false
+
+	return true
+}
+
+export function getInitialUser() {
+	let currentUser = String(getDataFromLocalStorage('currentUser'))
+	if (currentUser) return currentUser
+
+	setDataIntoLocalStorage('currentUser', Date.now())
+	return String(getDataFromLocalStorage('currentUser'))
+} 

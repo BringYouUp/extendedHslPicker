@@ -1,19 +1,26 @@
 import React from "react";
 
+import './Title.sass'
+
 import { useDispatch, useSelector } from "react-redux"
 
 import { getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
 
-import { MAIN_FORMATS } from '@consts/consts.js'
+import { MAIN_FORMATS, STARTED_COLLECTION } from '@consts/consts.js'
 
-const Title = ({ isLoading }) => {
+import { updateFirestore } from '@utils/firestoreUtils.js'
+
+import { Skeleton } from '@components/index.js'
+
+const Title = ({ currentUser, isLoading }) => {
 	const dispatch = useDispatch()
-	
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
 
 	function updateDefaultFormatToCopy(e) {
+		let generatedHSL = { ...hsl, defaultFormatToCopy: e.target.dataset.formatToCopy }
 		dispatch(getNewDefaultColorToCopy(e.target.dataset.formatToCopy))
+		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
 	}
 
 	const renderTitles = React.useMemo(() =>
@@ -29,19 +36,14 @@ const Title = ({ isLoading }) => {
 			</h2>)
 	, [hsl.defaultFormatToCopy, copiedColorReducer.hsl])
 
-	const renderSkeletonTitles = () => <>
-				<div className="skeleton"> </div>
-				<div className="skeleton"> </div>
-				<div className="skeleton"> </div>
-			</>
-
-
 	return (
-		<div className='title'>
-			{	isLoading
-				? renderSkeletonTitles()
-				: renderTitles }
-		</div>
+		<header>
+			{
+				isLoading
+					? <Skeleton count={3} />
+					: renderTitles
+			}
+		</header>
 	)
 }
 

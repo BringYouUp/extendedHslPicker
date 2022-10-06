@@ -1,11 +1,12 @@
 import React from "react";
 
+import './Notifications.sass'
+
 import { useSelector } from "react-redux"
 
 import { Slider, Board } from '@components/index.js'
 
 import { IMG_ADDED, IMG_CROSS } from '@consts/resources.js'
-
 
 export default function Notification ({ message, messageID, removeNotification, type, onAgree, onDisagree }) {
 	const [ isVisible, updateVisible ] = React.useState(true)
@@ -13,7 +14,7 @@ export default function Notification ({ message, messageID, removeNotification, 
 	React.useEffect(() => {
 		let toUnvisible = null
 		// if (type !== 'action') {
-			toUnvisible = setTimeout(() => { updateVisible(true) }, 5000)
+			toUnvisible = setTimeout(() => { updateVisible(false) }, 5000)
 		// }
 
 		return () => { clearTimeout(toUnvisible) }
@@ -32,12 +33,13 @@ export default function Notification ({ message, messageID, removeNotification, 
 
 					<div className="notificationButtons">
 						{
-							type === 'action' && <img
-								onClick={() => {
-									onAgree()
-									removeNotification(messageID)
-								}}
-								src={IMG_ADDED} />
+							type === 'action' &&
+								<img
+									onClick={() => {
+										onAgree()
+										removeNotification(messageID)
+									}}
+									src={IMG_ADDED} />
 						}
 							<img src={IMG_CROSS} className="close" onClick={() => {removeNotification(messageID)}} />
 					</div>

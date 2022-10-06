@@ -1,0 +1,78 @@
+@import '@styles/template'
+
+.notifications
+	transform: scaleX(-1)
+	z-index: 3
+	display: block
+	position: absolute
+	top: 4.5rem
+	left: 0
+	padding-right: 1rem
+	height: auto
+	max-height: calc(100vh - 4rem - 4rem)
+	overflow-y: overlay
+
+.notification
+	transform: scaleX(-1)
+	overflow: hidden
+	border-radius: $border-radius
+	width: $slider-width
+	margin-bottom: .5rem
+	font-size: 1rem
+	backdrop-filter: blur(20px)
+	background-color: rgba(0, 0, 0, 0.13)
+	display: flex
+	justify-content: center
+	padding: .5rem
+
+.notificationType
+	height: 2rem
+	flex: 0 0 1rem
+	display: flex
+	align-items: center
+	justify-content: center
+	span
+		display: inline-block
+		filter: opacity(.5)	
+		height: 0.5rem
+		width: 0.5rem
+		border-radius: 50%
+	span.message
+		background-color: #28a745
+	span.action
+		background-color: #ffc107
+	span.error
+		background-color: #dc3545
+
+.notificationMessage
+	margin: 0 .5rem
+	flex: 1 1 auto
+	font-size: calc(1vmin + .4em)
+	display: flex
+	align-items: center
+
+.notificationButtons
+	flex: 0 0 auto
+	height: 2rem
+	display: flex
+	justify-content: space-between
+	& > img:first-child
+		margin-right: .25rem
+	img
+		display: inline-block
+		filter: opacity(.33)
+		@include hoveredAndActivated
+		&:hover
+			transform: translate(0, -.25rem)
+			filter: opacity(.66)
+		&:active
+			transform: translate(0, -.125rem)
+			filter: opacity(.99)
+.accept
+	background-color: #28a745cc
+	backdrop-filter: blur(5px)
+	border-radius: 0 0 0 1rem
+.reject
+	background-color: #dc3545cc
+	backdrop-filter: blur(5px)
+	border-radius: 0 0 1rem 0
