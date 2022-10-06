@@ -29,8 +29,6 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 	const [ offset, setOffset ] = React.useState(() => currentSliderWidth * hsl[relatedValue] / max)
 
 	function removeBounceEffectListener (e) {
-		if (e.nativeEvent.which !== 1) return
-
 		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
 		updateFirestore('hsl', hsl, STARTED_COLLECTION, currentUser)
 	}
