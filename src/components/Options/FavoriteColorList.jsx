@@ -1,32 +1,29 @@
-import React from "react";
+import React from "react"
 
-import './FavoriteColorList.sass'
+import "./FavoriteColorList.sass"
 
-import { STARTED_COLLECTION } from '@consts/consts.js'
+import { STARTED_COLLECTION } from "@consts/consts.js"
 
 import { useSelector, useDispatch } from "react-redux"
 
-import { getUrlAddress, createNotification } from '@utils/utils.js'
+import { getFormattedHSL } from "@utils/utils.js"
 
-import { getFormattedHSL } from '@utils/utils.js'
+import { selectHSL } from "@store/hslReducer/actions.js"
 
-import { selectHSL } from '@store/hslReducer/actions.js'
-
-import { updateFirestore , getCollectionFromFireStore, getDataFromFireStore, unsub } from '@utils/firestoreUtils.js'
+import { updateFirestore , getCollectionFromFireStore, getDataFromFireStore } from "@utils/firestoreUtils.js"
 
 function FavoriteColorList ({ addNewNotification, currentUser, favoriteColorsList, setFavoriteColorsList}) {
 	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
-	let favoriteListSub = null
 
 	function initializeFavoriteColorList() {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
-			.then(collection => getDataFromFireStore(collection, 'favoriteColorsList')
+			.then(collection => getDataFromFireStore(collection, "favoriteColorsList")
 			.then(dataFromFireStore => {
 				setFavoriteColorsList(dataFromFireStore)
 			}))
 			.catch(error => {
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 	}
 
@@ -38,7 +35,7 @@ function FavoriteColorList ({ addNewNotification, currentUser, favoriteColorsLis
 			defaultFormatToCopy: hsl.defaultFormatToCopy
 		}
 
-		updateFirestore('hsl', finalSelectedFavoriteColor, STARTED_COLLECTION, currentUser)
+		updateFirestore("hsl", finalSelectedFavoriteColor, STARTED_COLLECTION, currentUser)
 		dispatch(selectHSL(finalSelectedFavoriteColor))
 	}
 
@@ -46,21 +43,18 @@ function FavoriteColorList ({ addNewNotification, currentUser, favoriteColorsLis
 		initializeFavoriteColorList()
 	}, [currentUser])
 
-
 	return (
 		<div className={`favoriteCellList`}>
 			{
 				favoriteColorsList.map(favoriteColor => {
-					return (
-						<div
-							key={favoriteColor.id}
-							className='favoriteCell'
-							style={{
-								backgroundColor: getFormattedHSL(favoriteColor)
-							}}
-							onClick={() => selectFavoriteColor(favoriteColor)}
-						/> 
-					)
+					return <div
+						key={favoriteColor.id}
+						className="favoriteCell"
+						style={{
+							backgroundColor: getFormattedHSL(favoriteColor)
+						}}
+						onClick={() => selectFavoriteColor(favoriteColor)}
+					/> 
 				})
 			}
 		</div>

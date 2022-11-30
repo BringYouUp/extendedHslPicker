@@ -1,18 +1,18 @@
-import React from "react";
+import React from "react"
 
-import './Title.sass'
+import "./Title.sass"
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
+import { getNewDefaultColorToCopy } from "@store/hslReducer/actions.js"
 
-import { MAIN_FORMATS, STARTED_COLLECTION } from '@consts/consts.js'
+import { MAIN_FORMATS, STARTED_COLLECTION } from "@consts/consts.js"
 
-import { updateFirestore } from '@utils/firestoreUtils.js'
+import { updateFirestore } from "@utils/firestoreUtils.js"
 
-import { Skeleton } from '@components/index.js'
+import { Skeleton } from "@components/index.js"
 
-const Title = ({ currentUser, isLoading }) => {
+export default function Title ({ currentUser, isLoading }) {
 	const dispatch = useDispatch()
 	const hsl = useSelector(state => state.hsl)
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
@@ -20,7 +20,7 @@ const Title = ({ currentUser, isLoading }) => {
 	function updateDefaultFormatToCopy(e) {
 		let generatedHSL = { ...hsl, defaultFormatToCopy: e.target.dataset.formatToCopy }
 		dispatch(getNewDefaultColorToCopy(e.target.dataset.formatToCopy))
-		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
+		updateFirestore("hsl", generatedHSL, STARTED_COLLECTION, currentUser)
 	}
 
 	const renderTitles = React.useMemo(() =>
@@ -46,5 +46,3 @@ const Title = ({ currentUser, isLoading }) => {
 		</header>
 	)
 }
-
-export default Title

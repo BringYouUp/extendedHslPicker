@@ -1,26 +1,26 @@
 import React from "react";
 
-import styles from '@styles/root.sass'
+import styles from "@styles/root.sass"
 
-import { Main, Title, Options, Notifications, NotFound } from '@components/index.js'
+import { Main, Title, Options, Notifications, NotFound } from "@components/index.js"
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { selectHSL } from '@store/hslReducer/actions.js'
+import { selectHSL } from "@store/hslReducer/actions.js"
 
-import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard } from '@store/copiedColorReducer/actions.js'
+import { reformatFormats, checkForTheSameUrlInClipboard, checkForTheSameTextInClipboard } from "@store/copiedColorReducer/actions.js"
 
-import { STARTED_COLLECTION } from '@consts/consts.js'
+import { STARTED_COLLECTION } from "@consts/consts.js"
 
-import { getInitialUser, isTextTheSame, getRandomGeneratedHSL, updateUrlAdress, createNotification, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from '@utils/utils.js'
+import { getInitialUser, isTextTheSame, getRandomGeneratedHSL, updateUrlAdress, createNotification, setDataIntoLocalStorage, toReadTextFromClipboard, getUrlAddress, toWriteTextIntoClipboard } from "@utils/utils.js"
 
-import { updateFirestore } from '@utils/firestoreUtils.js'
+import { updateFirestore } from "@utils/firestoreUtils.js"
 
-import { onAuthStateChanged  } from "firebase/auth";
+import { onAuthStateChanged  } from "firebase/auth"
 
-import { auth } from './../firebase-config.js'
+import { auth } from "./../firebase-config.js"
 
-const App = () => {
+export default function App () {
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 	const copiedColorReducer = useSelector(state => state.copiedColorReducer)
@@ -48,14 +48,14 @@ const App = () => {
 	function getRandomColor () {
 		let generatedHSL = { ...hsl, ...getRandomGeneratedHSL() }
 		dispatch(selectHSL(generatedHSL))
-		updateFirestore('hsl', generatedHSL, STARTED_COLLECTION, currentUser)
+		updateFirestore("hsl", generatedHSL, STARTED_COLLECTION, currentUser)
 	}
 
 	function updateClipboard (textToCopy) {
 		toReadTextFromClipboard()
 			.then(textFromClipboard => {
 				if (isTextTheSame(textFromClipboard, textToCopy)) {
-					throw new Error('text is already in clipboard')
+					throw new Error("text is already in clipboard")
 				} else {
 					addNewNotification(`${hsl.defaultFormatToCopy} color copied successfully`)
 					toWriteTextIntoClipboard(textToCopy)
@@ -63,7 +63,7 @@ const App = () => {
 				}
 			})
 			.catch(error => {
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 	}
 
@@ -87,7 +87,7 @@ const App = () => {
 	}, [hsl.hue, hsl.saturation, hsl.lightness])
 
 	React.useEffect(() => {
-		setDataIntoLocalStorage('hsl', hsl)
+		setDataIntoLocalStorage("hsl", hsl)
 		checkForTheSameTextIn()
 		updateUrlAdress(hsl)
 	}, [hsl])
@@ -97,9 +97,9 @@ const App = () => {
 	}, [copiedColorReducer.hsl])
 
 	window.onkeypress = (e) => {
-		if (e.code === 'Space') {
+		if (e.code === "Space") {
 			getRandomColor()
-		} else if (e.code === 'Enter') {
+		} else if (e.code === "Enter") {
 			updateClipboard(copiedColorReducer[hsl.defaultFormatToCopy])
 		}
 	}
@@ -143,5 +143,3 @@ const App = () => {
 			</>
 	)
 }
-
-export default App

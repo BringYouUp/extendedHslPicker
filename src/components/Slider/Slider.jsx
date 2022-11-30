@@ -1,20 +1,20 @@
-import React from "react";
+import React from "react"
 
-import './Slider.sass'
+import "./Slider.sass"
 
-import { getRefValues, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from '@utils/utils.js'
+import { getRefValues, addStyleProperties , removeStyleProperties,  generateBackgroundColorForSliderPoint , generateBackgroundColorForSliderTrack } from "@utils/utils.js"
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { resetValueOfHSL } from '@store/hslReducer/actions.js'
+import { resetValueOfHSL } from "@store/hslReducer/actions.js"
 
-import { updateFirestore } from '@utils/firestoreUtils.js'
+import { updateFirestore } from "@utils/firestoreUtils.js"
 
-import { STARTED_COLLECTION } from '@consts/consts.js'
+import { STARTED_COLLECTION } from "@consts/consts.js"
 
-import { selectHSL } from '@store/hslReducer/actions.js'
+import { selectHSL } from "@store/hslReducer/actions.js"
 
-import useResize from '@/hooks/useResize.js'
+import useResize from "@/hooks/useResize.js"
 
 export default function Slider ({ currentUser, relatedValue, max }) {
 	const dispatch = useDispatch()
@@ -29,26 +29,26 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 	const [ offset, setOffset ] = React.useState(() => currentSliderWidth * hsl[relatedValue] / max)
 
 	function removeBounceEffectListener (e) {
-		removeStyleProperties(sliderPoint.current, ['top', 'transform'])
-		updateFirestore('hsl', hsl, STARTED_COLLECTION, currentUser)
+		removeStyleProperties(sliderPoint.current, ["top", "transform"])
+		updateFirestore("hsl", hsl, STARTED_COLLECTION, currentUser)
 	}
 
 	function addBounceEffect (e) {
-		if (e.type === 'mousemove' && e.nativeEvent.which !== 1) return
+		if (e.type === "mousemove" && e.nativeEvent.which !== 1) return
 
-		let [ startSliderTrack ] = getRefValues(sliderTrack, ['offsetLeft'])
+		let [ startSliderTrack ] = getRefValues(sliderTrack, ["offsetLeft"])
 		let clickOffset = 0
 
 		addStyleProperties(sliderPoint.current, {
-			top: '-2.5rem',
-			transform: 'scale(2)'
+			top: "-2.5rem",
+			transform: "scale(2)"
 		})
 
-		if (e.type === 'touchmove' || e.type === 'touchstart') {
+		if (e.type === "touchmove" || e.type === "touchstart") {
 			clickOffset = e.touches[0]?.pageX - startSliderTrack
 		}
 
-		if (e.type === 'mousemove' || e.type === 'mousedown') {
+		if (e.type === "mousemove" || e.type === "mousedown") {
 			clickOffset = e.pageX - startSliderTrack
 		}
 
@@ -61,7 +61,7 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 	}
 
 	function oneTimeChanged (e) {
-		let [ startSliderTrack ] = getRefValues(sliderTrack, ['offsetLeft'])
+		let [ startSliderTrack ] = getRefValues(sliderTrack, ["offsetLeft"])
 		let clickOffset = e.pageX
 
 		if (clickOffset > startSliderTrack && clickOffset < startSliderTrack + currentSliderWidth) return
@@ -75,11 +75,11 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 		let newState = { ...hsl, [relatedValue]: hsl[relatedValue] + toAdd}
 
 		updateOffset(hsl[relatedValue] + toAdd)
-		updateFirestore('hsl', newState, STARTED_COLLECTION, currentUser)
+		updateFirestore("hsl", newState, STARTED_COLLECTION, currentUser)
 	}
 
 	function toCheckForResetValue (e) {
-		let [ startSliderTrack ] = getRefValues(sliderTrack, ['offsetLeft'])
+		let [ startSliderTrack ] = getRefValues(sliderTrack, ["offsetLeft"])
 
 		let clickOffset = e.pageX
 		let isClickWithinSlider = clickOffset > startSliderTrack && clickOffset < currentSliderWidth + startSliderTrack
@@ -116,7 +116,7 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 			onMouseLeave={removeBounceEffectListener}
 		>
 			<div
-				className='sliderWrapperInner'
+				className="sliderWrapperInner"
 				style={
 					{
 						background: generateBackgroundColorForSliderTrack(relatedValue, hsl)
@@ -132,9 +132,9 @@ export default function Slider ({ currentUser, relatedValue, max }) {
 						style={
 							{
 								backgroundColor: generateBackgroundColorForSliderPoint(relatedValue, hsl),
-								left: offset - 6 + 'px'
+								left: offset - 6 + "px"
 							}}
-						className='sliderPoint'
+						className="sliderPoint"
 						onDoubleClick={toCheckForResetValue} 
 					/>	
 				</div>

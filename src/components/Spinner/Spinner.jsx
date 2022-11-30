@@ -1,17 +1,15 @@
-import React from "react";
+import React from "react"
 
-import './Spinner.sass'
+import "./Spinner.sass"
 
-import { IMG_DOT } from '@consts/resources.js'
+import { IMG_DOT } from "@consts/resources.js"
 
-const Spinner = () => {
+export default function Spinner () {
 	return (
-		<div className='spinner'>
-			<img src={IMG_DOT} alt="" />
-			<img src={IMG_DOT} alt="" />
-			<img src={IMG_DOT} alt="" />
+		<div className="spinner">
+			<img src={IMG_DOT} alt="spinner-dot" />
+			<img src={IMG_DOT} alt="spinner-dot" />
+			<img src={IMG_DOT} alt="spinner-dot" />
 		</div>
 	)
 }
-
-export default Spinner

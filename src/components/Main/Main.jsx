@@ -1,37 +1,37 @@
-import React from "react";
+import React from "react"
 
-import './Main.sass'
+import "./Main.sass"
 
 import { useSelector, useDispatch } from "react-redux"
 
-import { Slider, Board, Skeleton } from '@components/index.js'
+import { Slider, Board, Skeleton } from "@components/index.js"
 
-import { isTwoObjectTheSame, isAddressBarIncludeQuery, setDataIntoLocalStorage } from '@utils/utils.js'
+import { isTwoObjectTheSame, isAddressBarIncludeQuery, setDataIntoLocalStorage } from "@utils/utils.js"
 
-import { updateFirestore, unsub, getCollectionFromFireStore, getDataFromFireStore } from '@utils/firestoreUtils.js'
+import { updateFirestore, getCollectionFromFireStore, getDataFromFireStore } from "@utils/firestoreUtils.js"
 
-import { STARTED_COLLECTION, STARTED_HSL_REDUCER} from '@consts/consts.js'
+import { STARTED_COLLECTION, STARTED_HSL_REDUCER} from "@consts/consts.js"
 
-import { selectHSL, getNewDefaultColorToCopy } from '@store/hslReducer/actions.js'
+import { selectHSL, getNewDefaultColorToCopy } from "@store/hslReducer/actions.js"
 
-function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotification, currentUser }) {
+export default function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotification, currentUser }) {
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 
 	function getColorFromSharedURL () {
 		dispatch(selectHSL(STARTED_HSL_REDUCER))
-		updateFirestore('hsl', STARTED_HSL_REDUCER, STARTED_COLLECTION, currentUser)
+		updateFirestore("hsl", STARTED_HSL_REDUCER, STARTED_COLLECTION, currentUser)
 	}
 
 	function initializeStateWithFirestore () {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
-			.then(collection => getDataFromFireStore(collection, 'hsl'))
+			.then(collection => getDataFromFireStore(collection, "hsl"))
 			.then(dataFromFireStore => {
 				dispatch(selectHSL({ ...dataFromFireStore }))
 				dispatch(getNewDefaultColorToCopy(dataFromFireStore.defaultFormatToCopy))
 			})
 			.catch(error => {
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 			.finally(() => {
 				updateLoadingState(false)
@@ -39,17 +39,17 @@ function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotifica
 		}
 
 	React.useEffect(() => {
-		setDataIntoLocalStorage('currentUser', currentUser)
+		setDataIntoLocalStorage("currentUser", currentUser)
 		initializeStateWithFirestore()
 	}, [currentUser])
 
 	React.useEffect(() => {
 		getCollectionFromFireStore(STARTED_COLLECTION, currentUser)
-			.then(collection => getDataFromFireStore(collection, 'hsl'))
+			.then(collection => getDataFromFireStore(collection, "hsl"))
 			.then(dataFromFireStore => {
 				if (isAddressBarIncludeQuery() )
 					if (!isTwoObjectTheSame(dataFromFireStore, STARTED_HSL_REDUCER))
-						addNewNotification('Get data from shared URL', 'action', getColorFromSharedURL)
+						addNewNotification("Get data from shared URL", "action", getColorFromSharedURL)
 			})
 		}, [])
 
@@ -59,15 +59,15 @@ function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotifica
 
 	const slidersConfig = [
 		{
-			relatedValue: 'hue',
+			relatedValue: "hue",
 			max: 360,
 		},
 		{
-			relatedValue: 'saturation',
+			relatedValue: "saturation",
 			max: 100,
 		},
 		{
-			relatedValue: 'lightness',
+			relatedValue: "lightness",
 			max: 100,
 		},
 	]
@@ -81,7 +81,7 @@ function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotifica
 			/>
 			{
 				isLoading
-				?  <Skeleton count={slidersConfig.length} />
+				? <Skeleton count={slidersConfig.length} />
 				: slidersConfig.map(({ relatedValue, max}) => {
 					return (
 						<Slider
@@ -96,5 +96,3 @@ function Main ({ updateLoadingState , isLoading, updateClipboard, addNewNotifica
 		</main>
 	)
 }
-
-export default Main

@@ -1,24 +1,20 @@
-import React from "react";
+import React from "react"
 
-import './Notifications.sass'
+import "./Notifications.sass"
 
-import { Notification } from '@components/index.js'
+import { Notification } from "@components/index.js"
 
 function Notifications ({ notifications, removeNotification }) {
 	return (
 		<div className="notifications">
-			{
-				notifications.map(notification => {
-					return (
-						<Notification
-							key={notification.id}
-							message={notification.message}
-							messageID={notification.id}
-							removeNotification={removeNotification}
-							type={notification.type}
-							onAgree={notification.onAgree}
-						/>
-					)
+			{ notifications.map(notification => {
+				return ( <Notification
+					key={notification.id}
+					message={notification.message}
+					messageID={notification.id}
+					removeNotification={removeNotification}
+					type={notification.type}
+					onAgree={notification.onAgree} />)
 				})
 			}
 		</div>

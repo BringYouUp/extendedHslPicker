@@ -27,7 +27,6 @@ const getOptimization = () => {
 const getAppropriateFilename = ext => isDevelopment ? `[name].${ext}` : `[name].[hash].${ext}`
 
 module.exports = () => {
-	
 	return {
 		mode: isDevelopment ? 'development' : 'production',
 		entry: {
@@ -108,7 +107,6 @@ module.exports = () => {
 			new CleanWebpackPlugin(),
 			new HtmlWebpackPlugin({
 				template: path.join(__dirname, 'index.html'),
-				title: 'hslPicker',
 				favicon: "src/assets/images/favicon.png",
 				minify: {
 					collapseWhitespace: !isDevelopment ? true : false,
@@ -125,7 +123,6 @@ module.exports = () => {
 			}),
 		],
 		resolve: {
-			// extensions: ['', '.js', '.jsx'],
 			alias: {
 				'@': SOURCE_DIRECTORY,
 				'@assets': path.resolve(__dirname, './src/assets'),

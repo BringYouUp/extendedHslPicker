@@ -1,16 +1,13 @@
-import React from "react";
+import React from "react"
 
-import './Skeleton.sass'
+import "./Skeleton.sass"
 
-const Skeleton = ({ count = 1 }) => {
+export default function Skeleton ({ count = 1 }) {
 	
 	return (
 		<>
-			{
-				Array(count).fill(null).map((item, index) => <div key={index} className='skeleton'></div>)
-			}
+			{ Array(count).fill(null).map((item, index) => <div key={index} className="skeleton"></div>) }
 		</>
 	)
 }
 
-export default Skeleton

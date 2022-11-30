@@ -1,19 +1,19 @@
-import React from "react";
+import React from "react"
 
-import './Form.sass'
+import "./Form.sass"
 
 import { useDispatch, useSelector } from "react-redux"
 
-import { STARTED_COLLECTION } from '@consts/consts.js'
-import { IMG_LOGIN_VIA_GOOGLE } from '@consts/resources.js'
+import { STARTED_COLLECTION } from "@consts/consts.js"
+import { IMG_LOGIN_VIA_GOOGLE } from "@consts/resources.js"
 
-import { auth } from '@/../firebase-config.js'
+import { auth } from "@/../firebase-config.js"
 
-import { getDataFromLocalStorage } from '@utils/utils.js'
+import { getDataFromLocalStorage } from "@utils/utils.js"
 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
-import { Spinner } from '@components/index.js'
+import { Spinner } from "@components/index.js"
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -21,8 +21,8 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 	const hsl = useSelector(state => state.hsl)
 	const dispatch = useDispatch()
 
-	const [isLoading, setIsLoading] = React.useState(false)
-	const [response , setResponce] = React.useState(null)
+	const [ isLoading, setIsLoading ] = React.useState(false)
+	const [ response , setResponce ] = React.useState(null)
 
 	const [ isFormHasRegisterState, setFormState ] = React.useState(false)
 
@@ -43,13 +43,13 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 		createUserWithEmailAndPassword(auth, ...dataFromForm)
 			.then(userCredential => {
 				authStateHasChanged(userCredential.user.uid)
-				addNewNotification('successfully create account')
+				addNewNotification("successfully create account")
 				updateLoadingState(true)
 			})
 			.catch((error) => {
 				const errorCode = error.code
 				const errorMessage = error.message
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 			.finally(() => {
 				setIsLoading(false)
@@ -61,19 +61,19 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 		setIsLoading(true)
 		
 		let dataFromForm = getDataFromForm(formRef)
-		let colorGuestMode = getDataFromLocalStorage('hsl')
-		let likedListGuestMode = getDataFromLocalStorage('favoriteColorsList')
+		let colorGuestMode = getDataFromLocalStorage("hsl")
+		let likedListGuestMode = getDataFromLocalStorage("favoriteColorsList")
 
 		signInWithEmailAndPassword(auth, ...dataFromForm)
 			.then( userCredential => {
 				authStateHasChanged(userCredential.user.uid)
-				addNewNotification('successfully logged in')
+				addNewNotification("successfully logged in")
 				updateLoadingState(true)
 			})
 			.catch( error => {
 				const errorCode = error.code
 				const errorMessage = error.message
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 			.finally(() => {
 				setIsLoading(false)
@@ -90,7 +90,7 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 				const user = result.user
 				authStateHasChanged(user.uid)
 				deleteDocFromFirebase(STARTED_COLLECTION, currentUser)
-				addNewNotification('successfully logged in via Google')
+				addNewNotification("successfully logged in via Google")
 			})
 			.catch((error) => {
 				const errorCode = error.code
@@ -98,7 +98,7 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 				// alert(errorMessage)
 				const email = error.customData.email
 				const credential = GoogleAuthProvider.credentialFromError(error)
-				addNewNotification(error.message, 'error')
+				addNewNotification(error.message, "error")
 			})
 			.finally(() => {
 				setIsLoading(false)
@@ -110,13 +110,13 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 			<div className="authForm">
 				<div className="formTitle">
 					<h2
-						style={{ filter: `${isFormHasRegisterState ? 'opacity(0.25)' : 'opacity(1)'}` }}
+						style={{ filter: `${isFormHasRegisterState ? "opacity(0.25)" : "opacity(1)"}` }}
 						onClick={() => { setFormState(false) }}>
 						Log in
 					</h2>
 
 					<h2
-						style={{ filter: `${isFormHasRegisterState ? 'opacity(1)' : 'opacity(0.25)'}` }}
+						style={{ filter: `${isFormHasRegisterState ? "opacity(1)" : "opacity(0.25)"}` }}
 						onClick={() => { setFormState(true) }}>
 						Sign Up
 					</h2>
@@ -136,7 +136,7 @@ export default function Form ({ updateLoadingState, setFavoriteColorsList, curre
 							!isLoading
 							? <input
 								type="submit"
-								value={`${isFormHasRegisterState ? 'Create User' : 'Log In'}`}
+								value={`${isFormHasRegisterState ? "Create User" : "Log In"}`}
 								onClick={(e) => { isFormHasRegisterState ? createNewUser(e) : signInUserWithEmailAndPassword(e) }} />
 							: <Spinner />
 						}

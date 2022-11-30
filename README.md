@@ -1,13 +1,20 @@
-https://extended-hsl-picker.web.app/
+<h1 align="center">Hi there</h1>	
+<h2 align="center">Below are the changes per application  version</h2>
+<h3 target="_blank" align="center"><a href="https://extended-hsl-picker.web.app/">ExtendedHslPicker</a></h3>
 
---- VER. 0.4.5 ---
+**VER. 0.4.51**
+
+	** FIXED
+		- some fixes
+
+**VER. 0.4.5**
 
 	** COMMON
 		- hi, I'm a release version
 	** MINOR
 		- deleted useless dependencies
 
---- VER. 0.4.4 ---
+**VER. 0.4.4**
 
 	** COMMON
 		- getting started color from shared link and user can select it
@@ -21,7 +28,7 @@ https://extended-hsl-picker.web.app/
 		- all images are compressed
 		- added meta tags for correct display and adaptation
 
---- VER. 0.4.3 ---
+**VER. 0.4.3**
 
 	** COMMON
 		- added handlers for 'Space' and 'Enter' pressing
@@ -35,14 +42,14 @@ https://extended-hsl-picker.web.app/
 	** MINOR
 		- rethinking project folders structure and some files
 
---- VER. 0.4.2 ---
+**VER. 0.4.2**
 
 	** COMMON
 		- added component NOTIFICATION with next type: action
 	** STYLE
 		- added skeleton animation
 
---- VER. 0.4.1 ---
+**VER. 0.4.1**
 
 	** COMMON
 		- added component NOTIFICATION with next types: message, error
@@ -54,7 +61,7 @@ https://extended-hsl-picker.web.app/
 		- fixed copying via central board
 		- some fixes related to switching between users
 
---- VER. 0.4.0 ---
+**VER. 0.4.0**
 
 	** COMMON
 		- added FireStore
@@ -68,7 +75,7 @@ https://extended-hsl-picker.web.app/
 		- fixed the clipboard watching proccess
 		- fixed the work liked list after authorization
 
---- VER. 0.3.2 ---
+**VER. 0.3.2**
 
 	** COMMON
 		- checking the clipboard when the user returns to the application
@@ -81,7 +88,7 @@ https://extended-hsl-picker.web.app/
 		- resetting value fixed
 		- now page reloading doesn't change user's clipboard 
 
---- VER. 0.3.1 ---
+**VER. 0.3.1**
 
 	** COMMON
 		- added buttons for improving the functionality of the application
@@ -94,7 +101,7 @@ https://extended-hsl-picker.web.app/
 		- some bugs fixed
 		- some bugs added
 
---- VER. 0.3.0 ---
+**VER. 0.3.0**
 
 	** COMMON
 		- now address bar displays actual color
@@ -105,7 +112,7 @@ https://extended-hsl-picker.web.app/
 		- after page reloading clipboard doesn't change anymore
 		- now value does not change user interacts with slider
 
---- VER. 0.2.5 ---
+**VER. 0.2.5**
 
 	** COMMON
 		- copy target color format more clearly
@@ -114,14 +121,14 @@ https://extended-hsl-picker.web.app/
 		- return to initial value after use 'random color' and 'change position of any HSL Slider'
 		- bug when user use 'accurate adjustment', now user won't see the value less than 0 and greater then allowed MAX
 
---- VER. 0.2.3 ---
+**VER. 0.2.3**
 
 	** COMMON
 		- added adjust color settings by one-time pressing left and right of specific slider
 	** FIXED
 		- now color copy even if targetColorFormat didn't change
 
---- VER. 0.2.2 ---
+**VER. 0.2.2**
 
 	** COMMON
 		- added custom slider for HUE, SATURATION AND LIGHTNESS
@@ -132,7 +139,7 @@ https://extended-hsl-picker.web.app/
 		- work on changing the structure of the project is in full swing
 		- added mobile half-support
 
---- VER. 0.2.1 ---
+**VER. 0.2.1**
 
 	** COMMON
 		- added LocalStorage support
@@ -140,20 +147,20 @@ https://extended-hsl-picker.web.app/
 	** MINOR
 		- attempt to add firebase store
 
---- VER. 0.2.0 ---
+**VER. 0.2.0**
 
 	** COMMON
 		- added Favorite color list
 		- user can swiches between favorite colors
 		- user can add and remove favorite colors
 
---- VER. 0.1.1 ---
+**VER. 0.1.1**
 
 	** COMMON
 		- added feature to choose target color format
 		- added feature to copy target color format to clipboard
 
---- VER. 0.1.0 ---
+**VER. 0.1.0**
 
 	** COMMON
 		- initialized project
